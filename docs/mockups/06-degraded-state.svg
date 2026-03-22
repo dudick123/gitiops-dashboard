@@ -1,0 +1,193 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" font-family="Inter, -apple-system, sans-serif">
+  <defs>
+    <style>
+      .bg { fill: #0f172a; }
+      .sidebar { fill: #1e293b; }
+      .divider { stroke: #334155; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="800" class="bg"/>
+
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="200" height="800" class="sidebar"/>
+  <text x="24" y="36" fill="#f8fafc" font-size="16" font-weight="700">GitOps Dashboard</text>
+  <text x="24" y="52" fill="#94a3b8" font-size="12">Platform Observability</text>
+  <line x1="16" y1="68" x2="184" y2="68" class="divider"/>
+
+  <rect x="8" y="80" width="184" height="32" fill="#1d4ed8" rx="6" opacity="0.3"/>
+  <text x="40" y="101" fill="#38bdf8" font-size="13" font-weight="600">Overview</text>
+  <text x="40" y="133" fill="#cbd5e1" font-size="13">App Status</text>
+  <text x="40" y="165" fill="#cbd5e1" font-size="13">Image Promotion</text>
+  <text x="40" y="197" fill="#cbd5e1" font-size="13">Metrics</text>
+  <text x="40" y="229" fill="#cbd5e1" font-size="13">Network Status</text>
+
+  <line x1="16" y1="252" x2="184" y2="252" class="divider"/>
+  <text x="24" y="276" fill="#94a3b8" font-size="12">ENVIRONMENTS</text>
+  <circle cx="26" cy="296" r="5" fill="#22c55e"/><text x="40" y="300" fill="#cbd5e1" font-size="12">DEV — Healthy</text>
+  <circle cx="26" cy="318" r="5" fill="#ef4444"/><text x="40" y="322" fill="#cbd5e1" font-size="12">STAGE — Unreachable</text>
+  <circle cx="26" cy="340" r="5" fill="#22c55e"/><text x="40" y="344" fill="#cbd5e1" font-size="12">PROD — Healthy</text>
+
+  <!-- System Status Banner -->
+  <rect x="216" y="12" width="968" height="48" fill="#451a03" rx="8" stroke="#f59e0b" stroke-width="1"/>
+  <text x="248" y="34" fill="#f59e0b" font-size="13" font-weight="700">Degraded Mode</text>
+  <text x="248" y="50" fill="#fbbf24" font-size="11">1 data source unreachable — STAGE ArgoCD instance. Metrics and Network connectors operating normally.</text>
+  <text x="1140" y="42" fill="#f59e0b" font-size="10" text-anchor="end">Since 14:32 UTC</text>
+
+  <!-- Page Title -->
+  <text x="232" y="92" fill="#f8fafc" font-size="18" font-weight="700">Dashboard Overview — Degraded State</text>
+  <text x="232" y="108" fill="#94a3b8" font-size="12">User Story DG-01: Dashboard remains functional when data sources are unreachable</text>
+
+  <!-- Stats Row — STAGE shows unknown -->
+  <rect x="216" y="120" width="230" height="90" fill="#1e293b" rx="8"/>
+  <text x="232" y="142" fill="#94a3b8" font-size="11" font-weight="600">TOTAL APPLICATIONS</text>
+  <text x="232" y="180" fill="#f8fafc" font-size="28" font-weight="700">847</text>
+  <text x="290" y="180" fill="#64748b" font-size="14">across 6 clusters</text>
+
+  <rect x="458" y="120" width="230" height="90" fill="#1e293b" rx="8"/>
+  <text x="474" y="142" fill="#94a3b8" font-size="11" font-weight="600">HEALTHY / SYNCED</text>
+  <text x="474" y="180" fill="#22c55e" font-size="28" font-weight="700">552</text>
+  <text x="528" y="180" fill="#64748b" font-size="14">DEV + PROD only</text>
+
+  <rect x="700" y="120" width="230" height="90" fill="#451a03" rx="8" opacity="0.6"/>
+  <text x="716" y="142" fill="#f59e0b" font-size="11" font-weight="600">UNKNOWN (STAGE)</text>
+  <text x="716" y="180" fill="#f59e0b" font-size="28" font-weight="700">~281</text>
+  <text x="776" y="180" fill="#fbbf24" font-size="14">source unreachable</text>
+
+  <rect x="942" y="120" width="242" height="90" fill="#1e293b" rx="8"/>
+  <text x="958" y="142" fill="#94a3b8" font-size="11" font-weight="600">DEGRADED / ERROR</text>
+  <text x="958" y="180" fill="#f59e0b" font-size="28" font-weight="700">14</text>
+  <text x="998" y="180" fill="#64748b" font-size="14">DEV + PROD only</text>
+
+  <!-- Environment Health Grid with STAGE degraded -->
+  <rect x="216" y="224" width="550" height="220" fill="#1e293b" rx="8"/>
+  <text x="232" y="248" fill="#94a3b8" font-size="11" font-weight="600">ENVIRONMENT HEALTH SUMMARY</text>
+
+  <text x="232" y="274" fill="#64748b" font-size="11" font-weight="600">ENVIRONMENT</text>
+  <text x="370" y="274" fill="#64748b" font-size="11" font-weight="600">EAST US</text>
+  <text x="470" y="274" fill="#64748b" font-size="11" font-weight="600">WEST US</text>
+  <text x="570" y="274" fill="#64748b" font-size="11" font-weight="600">APPS</text>
+  <text x="650" y="274" fill="#64748b" font-size="11" font-weight="600">STATUS</text>
+
+  <line x1="232" y1="282" x2="750" y2="282" class="divider"/>
+
+  <!-- DEV — normal -->
+  <rect x="232" y="288" width="56" height="22" fill="#1d4ed8" rx="4"/><text x="244" y="303" fill="#e2e8f0" font-size="11" font-weight="600">DEV</text>
+  <circle cx="386" cy="302" r="6" fill="#22c55e"/><text x="398" y="306" fill="#cbd5e1" font-size="12">Healthy</text>
+  <circle cx="486" cy="302" r="6" fill="#22c55e"/><text x="498" y="306" fill="#cbd5e1" font-size="12">Healthy</text>
+  <text x="570" y="306" fill="#e2e8f0" font-size="13" font-weight="500">284</text>
+  <rect x="636" y="292" width="80" height="20" fill="#052e16" rx="4"/><text x="652" y="306" fill="#22c55e" font-size="11" font-weight="600">All Synced</text>
+
+  <!-- STAGE — UNREACHABLE -->
+  <line x1="232" y1="322" x2="750" y2="322" class="divider" opacity="0.3"/>
+  <rect x="232" y="332" width="56" height="22" fill="#7c3aed" rx="4"/><text x="237" y="347" fill="#e2e8f0" font-size="11" font-weight="600">STAGE</text>
+
+  <!-- Striped/hatched unknown indicators -->
+  <rect x="360" y="334" width="80" height="28" fill="#1e293b" rx="4" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3"/>
+  <text x="400" y="352" fill="#f59e0b" font-size="11" font-weight="600" text-anchor="middle">Unknown</text>
+  <rect x="460" y="334" width="80" height="28" fill="#1e293b" rx="4" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3"/>
+  <text x="500" y="352" fill="#f59e0b" font-size="11" font-weight="600" text-anchor="middle">Unknown</text>
+  <text x="570" y="352" fill="#f59e0b" font-size="13" font-weight="500">~281</text>
+  <rect x="636" y="336" width="112" height="24" fill="#451a03" rx="4"/>
+  <text x="644" y="352" fill="#f59e0b" font-size="10" font-weight="600">Unreachable</text>
+
+  <!-- Last known data for STAGE -->
+  <text x="360" y="378" fill="#64748b" font-size="10">Last successful data: 14:32 UTC (12 min ago)</text>
+
+  <!-- PROD — normal -->
+  <line x1="232" y1="388" x2="750" y2="388" class="divider" opacity="0.3"/>
+  <rect x="232" y="396" width="56" height="22" fill="#dc2626" rx="4"/><text x="240" y="411" fill="#e2e8f0" font-size="11" font-weight="600">PROD</text>
+  <circle cx="386" cy="410" r="6" fill="#22c55e"/><text x="398" y="414" fill="#cbd5e1" font-size="12">Healthy</text>
+  <circle cx="486" cy="410" r="6" fill="#22c55e"/><text x="498" y="414" fill="#cbd5e1" font-size="12">Healthy</text>
+  <text x="570" y="414" fill="#e2e8f0" font-size="13" font-weight="500">282</text>
+  <rect x="636" y="400" width="80" height="20" fill="#052e16" rx="4"/><text x="652" y="414" fill="#22c55e" font-size="11" font-weight="600">All Synced</text>
+
+  <!-- Connector Status Panel -->
+  <rect x="778" y="224" width="406" height="220" fill="#1e293b" rx="8"/>
+  <text x="794" y="248" fill="#94a3b8" font-size="11" font-weight="600">DATA SOURCE STATUS</text>
+
+  <!-- ArgoCD Connectors -->
+  <text x="794" y="276" fill="#94a3b8" font-size="10" font-weight="600">ARGOCD CONNECTORS</text>
+
+  <rect x="794" y="284" width="374" height="32" fill="#0f172a" rx="6"/>
+  <circle cx="814" cy="300" r="5" fill="#22c55e"/>
+  <text x="828" y="296" fill="#e2e8f0" font-size="11" font-weight="500">argocd-dev</text>
+  <text x="828" y="310" fill="#64748b" font-size="9">argocd-dev.platform.internal</text>
+  <text x="1100" y="304" fill="#22c55e" font-size="10" text-anchor="end">8s ago</text>
+
+  <rect x="794" y="322" width="374" height="32" fill="#451a03" rx="6" opacity="0.5"/>
+  <circle cx="814" cy="338" r="5" fill="#ef4444"/>
+  <text x="828" y="334" fill="#f59e0b" font-size="11" font-weight="600">argocd-stage</text>
+  <text x="828" y="348" fill="#fbbf24" font-size="9">argocd-stage.platform.internal — connection refused</text>
+  <text x="1100" y="342" fill="#ef4444" font-size="10" text-anchor="end">12m ago</text>
+
+  <rect x="794" y="360" width="374" height="32" fill="#0f172a" rx="6"/>
+  <circle cx="814" cy="376" r="5" fill="#22c55e"/>
+  <text x="828" y="372" fill="#e2e8f0" font-size="11" font-weight="500">argocd-prod</text>
+  <text x="828" y="386" fill="#64748b" font-size="9">argocd-prod.platform.internal</text>
+  <text x="1100" y="380" fill="#22c55e" font-size="10" text-anchor="end">6s ago</text>
+
+  <!-- Other Connectors -->
+  <text x="794" y="414" fill="#94a3b8" font-size="10" font-weight="600">OTHER CONNECTORS</text>
+
+  <rect x="794" y="420" width="180" height="16" fill="#0f172a" rx="4"/>
+  <circle cx="806" cy="428" r="4" fill="#22c55e"/>
+  <text x="818" y="432" fill="#cbd5e1" font-size="10">Prometheus — 45s ago</text>
+
+  <rect x="982" y="420" width="186" height="16" fill="#0f172a" rx="4"/>
+  <circle cx="994" cy="428" r="4" fill="#22c55e"/>
+  <text x="1006" y="432" fill="#cbd5e1" font-size="10">Network (6/6) — 98s ago</text>
+
+  <!-- Metrics section — working normally -->
+  <rect x="216" y="460" width="550" height="140" fill="#1e293b" rx="8"/>
+  <text x="232" y="484" fill="#94a3b8" font-size="11" font-weight="600">RESOURCE UTILIZATION — OPERATING NORMALLY</text>
+  <text x="700" y="484" fill="#22c55e" font-size="10" text-anchor="end">All data current</text>
+
+  <text x="232" y="510" fill="#cbd5e1" font-size="12">CPU Usage (All Available Envs)</text>
+  <text x="700" y="510" fill="#94a3b8" font-size="11" text-anchor="end">42% avg</text>
+  <rect x="232" y="518" width="520" height="12" fill="#0f172a" rx="3"/>
+  <rect x="232" y="518" width="218" height="12" fill="#3b82f6" rx="3"/>
+
+  <text x="232" y="548" fill="#cbd5e1" font-size="12">Memory Usage (All Available Envs)</text>
+  <text x="700" y="548" fill="#94a3b8" font-size="11" text-anchor="end">61% avg</text>
+  <rect x="232" y="556" width="520" height="12" fill="#0f172a" rx="3"/>
+  <rect x="232" y="556" width="317" height="12" fill="#8b5cf6" rx="3"/>
+
+  <text x="232" y="586" fill="#64748b" font-size="10">Note: STAGE metrics are included — Prometheus operates independently of ArgoCD connectors</text>
+
+  <!-- Network section — working normally -->
+  <rect x="778" y="460" width="406" height="140" fill="#1e293b" rx="8"/>
+  <text x="794" y="484" fill="#94a3b8" font-size="11" font-weight="600">NETWORK POLICY — OPERATING NORMALLY</text>
+  <text x="1168" y="484" fill="#22c55e" font-size="10" text-anchor="end">All data current</text>
+
+  <text x="794" y="512" fill="#cbd5e1" font-size="12">Namespaces with policies</text>
+  <text x="1120" y="512" fill="#22c55e" font-size="13" font-weight="600" text-anchor="end">94%</text>
+  <rect x="794" y="520" width="370" height="10" fill="#0f172a" rx="3"/>
+  <rect x="794" y="520" width="348" height="10" fill="#22c55e" rx="3"/>
+
+  <text x="794" y="548" fill="#cbd5e1" font-size="12">Egress restricted</text>
+  <text x="1120" y="548" fill="#f59e0b" font-size="13" font-weight="600" text-anchor="end">87%</text>
+  <rect x="794" y="556" width="370" height="10" fill="#0f172a" rx="3"/>
+  <rect x="794" y="556" width="322" height="10" fill="#f59e0b" rx="3"/>
+
+  <text x="794" y="586" fill="#64748b" font-size="10">All 6 network-connector instances reporting normally</text>
+
+  <!-- Footer -->
+  <rect x="216" y="614" width="968" height="28" fill="#451a03" rx="6" opacity="0.5"/>
+  <text x="232" y="632" fill="#f59e0b" font-size="10" font-weight="600">ArgoCD: DEV 8s | STAGE unreachable (last: 14:32 UTC) | PROD 6s</text>
+  <text x="750" y="632" fill="#64748b" font-size="10">Prometheus: 45s ago | Network: 98s ago</text>
+  <text x="1140" y="632" fill="#475569" font-size="10" text-anchor="end">Tier II</text>
+
+  <!-- Key behaviors callout -->
+  <rect x="216" y="654" width="968" height="66" fill="#1e293b" rx="8" stroke="#334155" stroke-width="1"/>
+  <text x="232" y="674" fill="#94a3b8" font-size="10" font-weight="600">DEGRADED STATE BEHAVIORS DEMONSTRATED (DG-01):</text>
+  <text x="232" y="692" fill="#cbd5e1" font-size="10">1. STAGE columns show "Unknown" with dashed border — last refresh timestamp visible</text>
+  <text x="232" y="706" fill="#cbd5e1" font-size="10">2. DEV and PROD continue rendering normally — unaffected by STAGE outage</text>
+  <text x="700" y="692" fill="#cbd5e1" font-size="10">3. Metrics module unaffected — Prometheus is independent of ArgoCD</text>
+  <text x="700" y="706" fill="#cbd5e1" font-size="10">4. Network module unaffected — network-connectors query K8s API directly</text>
+
+  <!-- Mockup label -->
+  <rect x="216" y="730" width="968" height="56" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="4" rx="8"/>
+  <text x="700" y="754" fill="#475569" font-size="12" text-anchor="middle" font-style="italic">Mockup 6/6 — Degraded State Handling</text>
+  <text x="700" y="772" fill="#475569" font-size="11" text-anchor="middle">Persona: All Users — DG-01 (dashboard functional when data sources unreachable)</text>
+</svg>
