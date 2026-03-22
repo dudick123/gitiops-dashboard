@@ -2,16 +2,16 @@
 
 ## Unified Observability Interface for ArgoCD, Prometheus, and Kubernetes NetworkPolicy
 
-| Field              | Value                                                        |
-| ------------------ | ------------------------------------------------------------ |
-| **Version**        | 2.0                                                          |
-| **Status**         | Draft                                                        |
-| **Date**           | 2026-03-22                                                   |
-| **Owner**          | Platform Engineering Team                                    |
-| **Target Audience**| Platform Tenants (Dev, SRE, Security, Leadership)            |
-| **Review Cycle**   | Sprint-aligned (bi-weekly)                                   |
-| **Related Standards** | OpenSpec — github.com/Fission-AI/OpenSpec                 |
-| **Related PRDs**   | PRD-v2-gitops-pipelines.md (Azure DevOps pipeline templates) |
+| Field                 | Value                                                        |
+| --------------------- | ------------------------------------------------------------ |
+| **Version**           | 2.0                                                          |
+| **Status**            | Draft                                                        |
+| **Date**              | 2026-03-22                                                   |
+| **Owner**             | Platform Engineering Team                                    |
+| **Target Audience**   | Platform Tenants (Dev, SRE, Security, Leadership)            |
+| **Review Cycle**      | Sprint-aligned (bi-weekly)                                   |
+| **Related Standards** | OpenSpec — github.com/Fission-AI/OpenSpec                    |
+| **Related PRDs**      | PRD-v2-gitops-pipelines.md (Azure DevOps pipeline templates) |
 
 ---
 
@@ -114,9 +114,9 @@ The platform comprises three environments — DEV, STAGE, and PROD — each with
 
 | Environment | ArgoCD Instance | East US Cluster | West US Cluster | ArgoCD API Endpoint |
 | ----------- | --------------- | --------------- | --------------- | ------------------- |
-| **DEV** | argocd-dev | aks-dev-eastus | aks-dev-westus | https://argocd-dev.platform.internal |
-| **STAGE** | argocd-stage | aks-stage-eastus | aks-stage-westus | https://argocd-stage.platform.internal |
-| **PROD** | argocd-prod | aks-prod-eastus | aks-prod-westus | https://argocd-prod.platform.internal |
+| **DEV** | argocd-dev | aks-dev-eastus | aks-dev-westus | `https://argocd-dev.platform.internal` |
+| **STAGE** | argocd-stage | aks-stage-eastus | aks-stage-westus | `https://argocd-stage.platform.internal` |
+| **PROD** | argocd-prod | aks-prod-eastus | aks-prod-westus | `https://argocd-prod.platform.internal` |
 
 ### 3.2 Promotion Pipeline
 
@@ -165,7 +165,7 @@ All connector credentials — ArgoCD service account tokens, Azure Monitor Works
 
 ### 3.7 Logical Architecture
 
-```
+```text
                         ┌────────────────────────┐
                         │   React 18 Frontend    │
                         │  (TypeScript / Vite)   │
@@ -264,7 +264,7 @@ A single instance queries the Azure Monitor Workspace, which receives Prometheus
 | `AZURE_CLIENT_ID` | `<managed identity or app registration>` | External Secrets → Key Vault |
 | `AZURE_CLIENT_SECRET` | `<injected>` | External Secrets → Key Vault |
 
-#### Key Endpoints
+#### Prometheus Endpoints
 
 | Method | Path | Description |
 | ------ | ---- | ----------- |
@@ -281,7 +281,7 @@ All PromQL queries MUST include label filters for environment and cluster region
 
 Six instances deployed — one per AKS cluster. Each uses an in-cluster Kubernetes ServiceAccount with a minimal ClusterRole scoped to read NetworkPolicy objects. This is the only connector permitted to query the Kubernetes API directly, as NetworkPolicy data has no Prometheus equivalent.
 
-#### Key Endpoints
+#### Network Endpoints
 
 | Method | Path | Description |
 | ------ | ---- | ----------- |
@@ -388,9 +388,32 @@ This project follows the [OpenSpec](https://github.com/Fission-AI/OpenSpec) API-
 | **Frontend API layer** | Auto-generated from OpenAPI specs | Eliminates manual TS API client work |
 | **Agent-assisted development** | OpenSpec AI agents for stub and scaffold generation | Reduces burden for boilerplate; Python logic is the only hand-written code |
 
-### 6.2 Proposal Lifecycle
+### 6.2 OpenSpec Methodology Overview
+
+OpenSpec is a spec-driven development methodology where machine-readable specifications are the single source of truth for all API contracts. The methodology enforces a strict ordering: **specification → review → generation → implementation → verification**. No implementation work may begin until the governing spec is approved.
+
+#### Core Principles
+
+- **Spec as contract**: OpenAPI 3.1 YAML files define every endpoint, schema, error code, and caching policy. These files are committed to the monorepo and version-controlled independently of implementation code.
+- **Generation over authoring**: Backend stubs (FastAPI + Pydantic), frontend API clients (TypeScript), and integration test scaffolds are generated from specs. Generated code is committed but must not be hand-edited.
+- **Change-centric workflow**: All work is organised around named "changes" — discrete units of work with structured artifacts (proposal, design, spec, tasks) that progress through a defined lifecycle.
+- **Human-gated transitions**: Spec approval requires human review. The agent assists with generation and implementation; the human owns the "what" and "why."
+
+#### Proposal Lifecycle
 
 Each connector microservice corresponds to a discrete OpenSpec proposal. The lifecycle gates implementation behind spec approval:
+
+```text
+ DRAFT ──► REVIEW ──► APPROVED ──► GENERATED ──► IMPLEMENTED ──► VERIFIED
+   │          │           │            │               │              │
+   │          │           │            │               │              │
+   ▼          ▼           ▼            ▼               ▼              ▼
+ Author    PR opened.   Spec merged  FastAPI stubs   Team fills    Integration
+ writes    AI tooling   to main.     generated.      business      tests pass.
+ OpenAPI   validates.   Gate event.  TS clients      logic into    Proposal
+ 3.1 YAML. Human        Code gen     regenerated.    stubs.        closed.
+           approves.    may begin.   Committed.      Containerised.
+```
 
 1. **Draft** — Author writes the OpenAPI 3.1 YAML. Paths, schemas, error codes, and `x-cache-ttl` extension fields defined. No code yet.
 2. **Review** — PR opened. OpenSpec AI tooling validates completeness. Human reviewer approves.
@@ -400,6 +423,17 @@ Each connector microservice corresponds to a discrete OpenSpec proposal. The lif
 6. **Verified** — Generated integration tests pass against the running container. Proposal closed.
 
 Amendments to an approved spec that change response schemas require a new Draft cycle and a major version increment.
+
+#### Change Artifacts
+
+Each OpenSpec change produces a structured set of artifacts that capture the full lifecycle from intent to completion:
+
+| Artifact | Purpose | Created During |
+| -------- | ------- | -------------- |
+| **proposal.md** | Defines **what** is being built and **why**. Captures the problem statement, scope, and success criteria for the change. | Explore / Propose |
+| **design.md** | Defines **how** the change will be implemented. Architecture decisions, data flow, component interactions, and integration points. | Propose |
+| **spec (OpenAPI 3.1)** | Machine-readable API contract. Paths, schemas, error codes, cache TTLs. The source of truth from which all code is generated. | Propose / Draft |
+| **tasks.md** | Ordered implementation checklist. Each task is a discrete, completable unit of work with clear acceptance criteria. | Propose |
 
 ### 6.3 Agent Assistance Options
 
@@ -418,7 +452,309 @@ Within each OpenSpec proposal, the development team has two options for the Gene
 
 ---
 
-## 7. Security & Privacy
+## 7. Agentic Development
+
+### 7.1 Role of AI Agents in This Project
+
+This project makes deliberate, structured use of AI coding agents as a core part of the development workflow — not as an afterthought or productivity hack, but as a load-bearing element of the methodology. The team's profile (strong Python, no React experience) and the project's architecture (spec-driven, high boilerplate-to-logic ratio) make it a strong candidate for agent-assisted development.
+
+AI agents participate in four distinct capacities:
+
+| Capacity | What the Agent Does | What the Human Does |
+| -------- | ------------------- | ------------------- |
+| **Exploration** | Analyses codebase, investigates integration points, maps data flows, surfaces options | Evaluates options, makes architectural decisions, sets constraints |
+| **Proposal generation** | Drafts proposals, designs, OpenAPI specs, and task breakdowns from a description of intent | Reviews artifacts for correctness, approves or redirects |
+| **Code generation** | Generates FastAPI stubs, Pydantic models, TS API clients, test scaffolds from approved specs | Reviews generated code, fills business logic (scaffold mode) or reviews completed logic (agent-implemented mode) |
+| **Implementation** | Executes tasks from the task list — writes code, creates files, wires components | Reviews diffs, validates behaviour, marks tasks complete |
+
+### 7.2 OpenSpec Agentic Workflow
+
+The project's OpenSpec tooling provides four agentic skills that map to the change lifecycle. These skills are invoked through Claude Code and operate on the structured artifacts in the `openspec/` directory.
+
+```text
+┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
+│ EXPLORE  │────►│ PROPOSE  │────►│  APPLY   │────►│ ARCHIVE  │
+│          │     │          │     │          │     │          │
+│ Think,   │     │ Generate │     │ Implement│     │ Finalise,│
+│ discover,│     │ proposal,│     │ tasks,   │     │ move to  │
+│ clarify  │     │ design,  │     │ write    │     │ archive, │
+│ require- │     │ spec,    │     │ code,    │     │ sync     │
+│ ments    │     │ tasks    │     │ test     │     │ specs    │
+└──────────┘     └──────────┘     └──────────┘     └──────────┘
+     ▲                                  │
+     └──────────────────────────────────┘
+              (iterate if needed)
+```
+
+| Skill | Invocation | Purpose | Outputs |
+| ----- | ---------- | ------- | ------- |
+| **Explore** | `/openspec-explore` | Thinking partner for discovery. Reads code, searches patterns, maps architecture. Does not write implementation code. | Clarified requirements, option analysis, ASCII diagrams, draft artifacts |
+| **Propose** | `/openspec-propose` | Creates a named change and generates all artifacts (proposal, design, spec, tasks) in one step. | Complete change directory under `openspec/changes/<name>/` with all artifacts ready for review |
+| **Apply** | `/openspec-apply-change` | Implements tasks from a change. Reads context (proposal, design, spec), executes tasks sequentially, writes code. | Working code committed per task. Tasks marked complete in `tasks.md`. |
+| **Archive** | `/openspec-archive-change` | Finalises a completed change. Syncs delta specs to main spec directory. Moves change to archive. | Change archived to `openspec/changes/archive/YYYY-MM-DD-<name>/` |
+
+The workflow is **not phase-locked** — teams can loop between Explore and Propose, pause Apply to revisit the design, or Archive a partially completed change if the scope shifts.
+
+### 7.3 Pros and Cons of Agentic Development
+
+#### Advantages
+
+- **Bridges the React gap**: The team is Python-proficient with no React experience. Agent-generated TypeScript API clients and React component scaffolds allow the team to deliver a production frontend without acquiring deep React expertise first. The team reviews and validates agent output rather than authoring from scratch.
+
+- **High boilerplate-to-logic ratio**: Each connector follows the same pattern — FastAPI app, Pydantic models, Redis caching, health endpoint, structured logging. Agents generate this boilerplate reliably, freeing developer time for the business logic that differs between connectors (ArgoCD fan-out, PromQL query construction, NetworkPolicy parsing).
+
+- **Spec-driven guardrails**: Because all generation flows from approved OpenAPI specs, the agent operates within a well-defined contract. Drift between spec and implementation is caught by generated integration tests, not by hope.
+
+- **Faster iteration on proposals**: An agent can generate a complete proposal (design + spec + tasks) in minutes. The human reviews a draft rather than starting from a blank page — a meaningful acceleration for a small team.
+
+- **Consistent patterns across connectors**: Agents apply the same patterns to every connector — consistent error handling, logging, caching, and endpoint structure. Manual implementation across 10+ connector instances invites inconsistency.
+
+#### Risks and Mitigations
+
+| Risk | Description | Mitigation |
+| ---- | ----------- | ---------- |
+| **Unreviewed code in production** | Agent-generated code that passes tests but contains subtle logic errors, security issues, or incorrect assumptions about upstream APIs. | All agent-generated code goes through human review before merge. Generated integration tests validate spec conformance. Security-sensitive code (credential handling, API auth) is always human-reviewed line by line. |
+| **Over-reliance on agent for domain understanding** | Agent may generate plausible-looking ArgoCD or Prometheus integration code that misunderstands API behaviour at edge cases (e.g., ArgoCD app-of-apps, multi-source applications). | Team validates agent output against actual ArgoCD/Prometheus API behaviour in DEV. Scaffold-only mode used for integrations where the team wants full control. |
+| **Generated code drift** | If specs are updated but generated code is not regenerated, implementation may diverge from the contract. | Spec-conformance gate in Phase 4. CI step validates generated code matches current spec. Generated files are marked with headers indicating they must not be hand-edited. |
+| **Debugging agent-generated code** | When agent-generated code fails in production, the team may struggle to debug code they didn't write, particularly on the React/TypeScript side. | Structured JSON logging on all connectors. Generated code includes comments explaining non-obvious logic. Team builds familiarity through the review process. |
+| **Agent hallucination in specs** | Agent may propose API endpoints, schemas, or integration patterns that don't align with actual upstream API capabilities. | Explore phase validates assumptions against live APIs before Propose. All specs require human review before approval gate. |
+
+### 7.4 Agentic Skills Catalog
+
+Beyond the four OpenSpec workflow skills, the following agent capabilities are available to augment development across the project lifecycle:
+
+#### Development Skills
+
+| Skill | Invocation | When to Use |
+| ----- | ---------- | ----------- |
+| **Feature Development** | `/feature-dev` | Guided feature implementation with codebase analysis and architecture focus. Use for implementing dashboard modules, connector logic, or frontend components that require understanding existing patterns before writing code. |
+| **Code Review** | `/code-review` | Automated review of pull requests for bugs, security issues, and convention adherence. Use on every PR — particularly important for agent-generated code going through human review. |
+| **Simplify** | `/simplify` | Reviews changed code for reuse opportunities, quality issues, and efficiency. Use after a batch of agent-generated code is committed to identify consolidation opportunities across connectors. |
+
+#### Planning and Documentation Skills
+
+| Skill | Invocation | When to Use |
+| ----- | ---------- | ----------- |
+| **PRD Generation** | `/prd` | Generates product requirements documents. Used to produce this document. Useful for scoping post-MVP features or documenting new connector proposals. |
+| **Claude API** | `/claude-api` | Builds applications using the Claude API or Anthropic SDK. Relevant if the dashboard later integrates AI-powered summarisation or natural language queries against platform state. |
+
+#### Recommended Agent-Assisted Tasks by Phase
+
+| Phase | Agent-Assisted Tasks | Human-Owned Tasks |
+| ----- | -------------------- | ------------------ |
+| **Phase 0** | React scaffold generation (Vite + Tailwind + shadcn/ui). Docker and Kustomize boilerplate. Mock data generation for all 3 envs × 2 regions. | ESO/Key Vault wiring. ArgoCD API access verification. Stakeholder review of mockup. |
+| **Phase 1** | OpenAPI spec drafting for argocd-connector. FastAPI stub generation. TypeScript client generation. React module scaffolding (App Status, Image Promotion). Integration test generation. | ArgoCD API behaviour validation in DEV. `dest.server` → region mapping logic. Business logic for image tag extraction fallback. |
+| **Phase 2** | OpenAPI spec drafting for prometheus-connector. PromQL query template generation. FastAPI stub generation. React module scaffolding (Metrics). | Azure Monitor Workspace authentication flow. PromQL label schema validation. Sparkline component tuning. |
+| **Phase 3** | OpenAPI spec drafting for network-connector. FastAPI stub generation. ClusterRole YAML generation. React module scaffolding (Network Status). | NetworkPolicy parsing logic. Cross-cluster network connectivity validation. |
+| **Phase 4** | Spec-conformance test generation. End-to-end test scaffolding. Performance test harness. | Performance tuning. Pilot tenant onboarding. Runbook documentation. |
+
+---
+
+## 8. Repository Structure
+
+### 8.1 GitOps Repository Strategy
+
+The platform team follows a GitOps methodology with **separate repositories for application code and deployment manifests**. This separation ensures that CI pipelines produce artifacts (container images) independently of CD pipelines (manifest sync via ArgoCD), and that the GitOps manifest repo contains only rendered, auditable YAML.
+
+```text
+                    ┌──────────────────────────┐
+                    │  gitops-dashboard         │  Application source code
+                    │  (this repo)              │  + OpenSpec artifacts
+                    │                           │  + OpenAPI specs
+                    └────────────┬──────────────┘
+                                 │
+                          CI Pipeline
+                          (build, test,
+                           scan, push image)
+                                 │
+                    ┌────────────▼──────────────┐
+                    │  gitops-dashboard-deploy   │  Kustomize manifests
+                    │  (deploy repo)             │  + rendered output
+                    │                           │  for ArgoCD sync
+                    └────────────┬──────────────┘
+                                 │
+                          ArgoCD watches
+                          (auto-sync or
+                           manual sync)
+                                 │
+                    ┌────────────▼──────────────┐
+                    │  aks-dev-eastus            │  Dashboard runs here
+                    │  (dashboard namespace)     │
+                    └───────────────────────────┘
+```
+
+### 8.2 Application Repository — `gitops-dashboard`
+
+This is the primary development repository. It contains all source code, OpenSpec artifacts, API specifications, and CI pipeline definitions. No Kubernetes manifests live here — those are in the deploy repo.
+
+```text
+gitops-dashboard/
+├── CLAUDE.md                              # Claude Code project instructions
+├── docs/
+│   ├── PRD-gitops-dashboard.md            # This document
+│   └── PRD-v2-gitops-pipelines.md         # Pipeline templates PRD (reference)
+│
+├── openspec/                              # OpenSpec methodology artifacts
+│   ├── config.yaml                        # OpenSpec project configuration
+│   ├── specs/                             # Approved, canonical specifications
+│   │   ├── argocd-connector/
+│   │   │   └── spec.md                    # Approved OpenAPI spec (PROP-01)
+│   │   ├── prometheus-connector/
+│   │   │   └── spec.md                    # Approved OpenAPI spec (PROP-03)
+│   │   └── network-connector/
+│   │       └── spec.md                    # Approved OpenAPI spec (PROP-04)
+│   └── changes/                           # Active and archived changes
+│       ├── <active-change-name>/          # In-progress change
+│       │   ├── .openspec.yaml             # Change metadata
+│       │   ├── proposal.md                # What & why
+│       │   ├── design.md                  # How (architecture)
+│       │   ├── tasks.md                   # Implementation checklist
+│       │   └── specs/                     # Delta specs for this change
+│       └── archive/                       # Completed changes
+│           └── YYYY-MM-DD-<name>/
+│
+├── specs/                                 # OpenAPI 3.1 YAML (source of truth)
+│   ├── argocd-connector/
+│   │   └── openapi.yaml
+│   ├── prometheus-connector/
+│   │   └── openapi.yaml
+│   └── network-connector/
+│       └── openapi.yaml
+│
+├── connectors/                            # Backend microservices (Python 3.14)
+│   ├── argocd-connector/
+│   │   ├── Dockerfile
+│   │   ├── pyproject.toml
+│   │   ├── src/
+│   │   │   ├── main.py                    # FastAPI app entry point
+│   │   │   ├── routes/                    # Generated route stubs + business logic
+│   │   │   ├── models/                    # Generated Pydantic v2 models
+│   │   │   ├── services/                  # Hand-written business logic
+│   │   │   └── cache.py                   # Redis client (30s TTL)
+│   │   └── tests/
+│   │       ├── generated/                 # Auto-generated spec-conformance tests
+│   │       └── integration/               # Hand-written integration tests
+│   ├── prometheus-connector/
+│   │   ├── Dockerfile
+│   │   ├── pyproject.toml
+│   │   ├── src/
+│   │   │   ├── main.py
+│   │   │   ├── routes/
+│   │   │   ├── models/
+│   │   │   ├── services/
+│   │   │   └── cache.py                   # Redis client (60s TTL)
+│   │   └── tests/
+│   └── network-connector/
+│       ├── Dockerfile
+│       ├── pyproject.toml
+│       ├── src/
+│       │   ├── main.py
+│       │   ├── routes/
+│       │   ├── models/
+│       │   ├── services/
+│       │   └── cache.py                   # Redis client (120s TTL)
+│       └── tests/
+│
+├── frontend/                              # React 18 + TypeScript dashboard
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── vite.config.ts
+│   ├── tsconfig.json
+│   ├── src/
+│   │   ├── App.tsx
+│   │   ├── api/                           # Auto-generated API clients (DO NOT EDIT)
+│   │   │   ├── argocd-connector/
+│   │   │   ├── prometheus-connector/
+│   │   │   └── network-connector/
+│   │   ├── components/
+│   │   │   ├── layout/                    # Shell, nav, global filters
+│   │   │   ├── app-status/                # Module 1 — ArgoCD Application Status
+│   │   │   ├── image-promotion/           # Module 2 — Image Promotion View
+│   │   │   ├── metrics/                   # Module 3 — CPU & Memory Metrics
+│   │   │   └── network-status/            # Module 4 — Namespace Network Status
+│   │   ├── hooks/                         # React Query hooks (polling config)
+│   │   └── lib/                           # Shared utilities
+│   └── tests/
+│
+├── scripts/                               # Development and CI utility scripts
+│   ├── generate-stubs.py                  # Generate FastAPI stubs from specs
+│   ├── generate-ts-clients.sh             # Generate TS clients from specs
+│   └── validate-spec-conformance.py       # Spec vs implementation validation
+│
+├── azure-pipelines.yml                    # CI pipeline definition
+└── Makefile                               # Local dev commands (build, test, lint)
+```
+
+### 8.3 Deploy Repository — `gitops-dashboard-deploy`
+
+A separate repository containing Kustomize base manifests and per-environment/region overlays. ArgoCD watches this repo and syncs rendered manifests to the DEV East US cluster. Following the rendered manifests pattern from PRD-v2-gitops-pipelines, CI renders all overlays and commits fully hydrated YAML — ArgoCD syncs raw manifests with no in-cluster rendering.
+
+```text
+gitops-dashboard-deploy/
+├── base/                                  # Shared Kustomize base
+│   ├── kustomization.yaml
+│   ├── namespace.yaml                     # dashboard namespace
+│   ├── redis/
+│   │   ├── deployment.yaml
+│   │   └── service.yaml
+│   ├── frontend/
+│   │   ├── deployment.yaml
+│   │   ├── service.yaml
+│   │   └── ingress.yaml                   # Internal-only ingress
+│   ├── argocd-connector/
+│   │   ├── deployment.yaml                # Template — env/region parameterised
+│   │   ├── service.yaml
+│   │   └── hpa.yaml
+│   ├── prometheus-connector/
+│   │   ├── deployment.yaml
+│   │   ├── service.yaml
+│   │   └── hpa.yaml
+│   ├── network-connector/
+│   │   ├── deployment.yaml                # Template — cluster parameterised
+│   │   ├── service.yaml
+│   │   ├── hpa.yaml
+│   │   ├── serviceaccount.yaml
+│   │   └── clusterrole.yaml               # NetworkPolicy read-only
+│   └── external-secrets/
+│       ├── argocd-dev-token.yaml           # ExternalSecret → Key Vault
+│       ├── argocd-stage-token.yaml
+│       ├── argocd-prod-token.yaml
+│       └── azure-monitor-creds.yaml
+│
+├── overlays/
+│   └── dev-eastus/                        # Dashboard deploys to DEV East US only
+│       ├── kustomization.yaml
+│       └── patches/
+│           ├── argocd-connector-dev.yaml   # ARGOCD_ENV=DEV, DEV server URL
+│           ├── argocd-connector-stage.yaml # ARGOCD_ENV=STAGE, STAGE server URL
+│           ├── argocd-connector-prod.yaml  # ARGOCD_ENV=PROD, PROD server URL
+│           ├── prometheus-connector.yaml   # Azure Monitor Workspace endpoint
+│           ├── network-connector-dev-e.yaml
+│           ├── network-connector-dev-w.yaml
+│           ├── network-connector-stage-e.yaml
+│           ├── network-connector-stage-w.yaml
+│           ├── network-connector-prod-e.yaml
+│           └── network-connector-prod-w.yaml
+│
+└── rendered/
+    └── dev-eastus/
+        └── manifests.yaml                 # Fully rendered — ArgoCD syncs this
+```
+
+### 8.4 Repository Separation Rationale
+
+| Concern | Application Repo (`gitops-dashboard`) | Deploy Repo (`gitops-dashboard-deploy`) |
+| ------- | ------------------------------------- | --------------------------------------- |
+| **Contents** | Source code, specs, tests, CI pipeline, docs | Kustomize manifests, overlays, rendered YAML |
+| **CI trigger** | Code changes trigger build, test, scan, image push | Manifest changes trigger ArgoCD sync |
+| **Access model** | Development team (read/write) | CI pipeline (write rendered output), ArgoCD (read), platform team (read/write) |
+| **Review scope** | Code logic, spec changes, test coverage | Manifest correctness, resource limits, security policies |
+| **Audit trail** | Code commits linked to PRs and specs | Manifest commits linked to source commit, pipeline run, and image SHA (per rendered manifests pattern) |
+| **Rollback** | Revert code change, re-run CI | `git revert` manifest commit — ArgoCD syncs the revert |
+
+---
+
+## 9. Security & Privacy
 
 | Concern | Approach |
 | ------- | -------- |
@@ -433,7 +769,7 @@ Within each OpenSpec proposal, the development team has two options for the Gene
 
 ---
 
-## 8. Non-Functional Requirements
+## 10. Non-Functional Requirements
 
 | Category | Requirement |
 | -------- | ----------- |
@@ -458,7 +794,7 @@ Within each OpenSpec proposal, the development team has two options for the Gene
 
 ---
 
-## 9. Risks & Roadmap
+## 11. Risks & Roadmap
 
 ### Technical Risks
 
@@ -487,7 +823,7 @@ Each phase is gated by approval of its OpenSpec proposals. No code generation or
 
 ---
 
-## 10. Resolved Decisions
+## 12. Resolved Decisions
 
 | Topic | Decision |
 | ----- | -------- |
@@ -504,7 +840,7 @@ Each phase is gated by approval of its OpenSpec proposals. No code generation or
 
 ---
 
-## 11. Open Questions
+## 13. Open Questions
 
 | # | Question | Needed For | Status |
 | - | -------- | ---------- | ------ |
@@ -517,7 +853,7 @@ Each phase is gated by approval of its OpenSpec proposals. No code generation or
 
 ---
 
-## 12. Glossary
+## 14. Glossary
 
 | Term | Definition |
 | ---- | ---------- |
