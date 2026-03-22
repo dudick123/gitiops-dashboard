@@ -207,7 +207,7 @@ All connector credentials — ArgoCD service account tokens, Azure Monitor Works
 - **Language & runtime**: Python 3.14 across all connectors.
 - **Framework**: FastAPI with Pydantic v2 request/response models on all HTTP endpoints.
 - **Deployment**: Each connector is a separate container image, deployed as an independent Kubernetes Deployment in the dashboard namespace on the DEV East US cluster.
-- **OpenAPI spec**: Each service auto-exposes `/openapi.json`; the spec is also committed to the monorepo as the source-of-truth artifact per OpenSpec.
+- **API documentation (Swagger)**: Each service exposes interactive Swagger UI at `/docs` and ReDoc at `/redoc` (FastAPI built-in). The underlying OpenAPI 3.1 spec is served at `/openapi.json`. Swagger UI is the primary interface for developers to explore, understand, and test connector APIs during development and integration. The spec is also committed to the monorepo as the source-of-truth artifact per OpenSpec.
 - **No shared state**: Connectors may not import from each other; cross-connector aggregation happens in the React frontend.
 - **Caching**: Each connector maintains its own Redis client with TTL values defined per endpoint.
 - **Secrets**: All credentials injected via environment variables populated by External Secrets Operator from Azure Key Vault. No credentials in images or ConfigMaps.
@@ -754,7 +754,89 @@ gitops-dashboard-deploy/
 
 ---
 
-## 9. Security & Privacy
+## 9. Documentation Requirements
+
+In-depth documentation is a first-class deliverable — not an afterthought. Documentation must be created and updated during each phase alongside the code it describes. Stale or missing documentation is treated as a phase gate blocker equivalent to failing tests.
+
+### 9.1 API Documentation (Swagger)
+
+Every connector microservice exposes interactive API documentation via Swagger UI. This is the primary interface for developers integrating with connector APIs.
+
+| Endpoint | Format | Purpose |
+| -------- | ------ | ------- |
+| **`/docs`** | Swagger UI (interactive) | Explore endpoints, view schemas, execute test requests against the running service. Primary developer interface for API discovery and integration testing. |
+| **`/redoc`** | ReDoc (read-only) | Clean, printable API reference documentation. Suitable for sharing with stakeholders or embedding in documentation portals. |
+| **`/openapi.json`** | OpenAPI 3.1 JSON | Machine-readable spec for client generation, spec-conformance validation, and CI tooling. |
+
+**Requirements**:
+
+- Swagger UI MUST be enabled on all connector instances in all environments (DEV, STAGE, PROD). Since the dashboard is internal-only and non-mutating, there is no security risk from exposing interactive docs.
+- All endpoints MUST include descriptions, request/response examples, and error response schemas in the OpenAPI spec. These render automatically in Swagger UI.
+- Schema descriptions MUST document the meaning of each field, not just the type. For example, `health` should document the possible values (Healthy, Degraded, Unknown) and what each means.
+- The `x-cache-ttl` extension field on each endpoint MUST be visible in the Swagger docs so consumers understand data freshness guarantees.
+
+### 9.2 Documentation Artifacts
+
+The following markdown documents are required and must be maintained throughout the project lifecycle:
+
+#### Project-Level Documentation (Application Repo Root)
+
+| Document | Audience | Content |
+| -------- | -------- | ------- |
+| **README.md** | All developers, new team members | Project overview, architecture summary, links to PRDs, tech stack, repo structure, contribution workflow, links to connector and frontend READMEs. |
+| **QUICKSTART.md** | New developers joining the project | Step-by-step guide to clone the repo, install dependencies, start all services locally (connectors + frontend + Redis), and verify the dashboard loads with mock or live data. Includes prerequisites (Python 3.14, Node.js, Docker, Redis). |
+| **TROUBLESHOOTING.md** | Developers and operators | Common issues and resolutions: build failures, connectivity issues to ArgoCD/Prometheus, Redis cache debugging, frontend build issues, Docker image build problems, ESO/Key Vault configuration errors. |
+
+#### Connector-Level Documentation (Per Connector Directory)
+
+| Document | Audience | Content |
+| -------- | -------- | ------- |
+| **connectors/{name}/README.md** | Developers working on that connector | Connector purpose, upstream API details, configuration (env vars), local development instructions, testing instructions, Swagger UI URL, caching behaviour, error handling patterns. |
+| **connectors/{name}/QUICKSTART.md** | Developers new to that connector | Minimal steps to run the connector locally, point it at a test/dev upstream, and verify it responds on `/health` and `/docs`. |
+
+#### Frontend Documentation
+
+| Document | Audience | Content |
+| -------- | -------- | ------- |
+| **frontend/README.md** | Developers working on the frontend | Module architecture, component structure, auto-generated API client usage, React Query polling configuration, environment/region filter behaviour, build and test instructions. |
+| **frontend/QUICKSTART.md** | Developers new to the frontend | Steps to install dependencies, start the dev server, connect to local or remote connectors, and view the dashboard. |
+
+#### Operator Documentation
+
+| Document | Audience | Content |
+| -------- | -------- | ------- |
+| **docs/OPERATIONS.md** | Platform operators, SREs | Deployment architecture, connector instance inventory, Redis cache policy, health check endpoints, log format and structured fields, HPA configuration, ESO/Key Vault secret mapping, monitoring and alerting guidance. |
+| **docs/RUNBOOK.md** | On-call operators | Incident response procedures: connector unreachable, Redis down, ArgoCD token expired, Azure Monitor Workspace query failures, dashboard unresponsive. Step-by-step recovery for each scenario. |
+
+#### Deploy Repo Documentation
+
+| Document | Audience | Content |
+| -------- | -------- | ------- |
+| **README.md** (deploy repo) | Platform engineers, ArgoCD operators | Kustomize structure, overlay organisation, rendered manifests pattern, ArgoCD sync configuration, how to add a new connector instance, how to update image tags. |
+
+### 9.3 Documentation Per Phase
+
+Documentation is not a final-phase activity. Each phase must produce and update the documentation artifacts listed below before the phase gate can be considered met.
+
+| Phase | Documentation Deliverables |
+| ----- | -------------------------- |
+| **Phase 0** | Project-level README.md, QUICKSTART.md (mock data mode), TROUBLESHOOTING.md (initial — build and Docker issues). Deploy repo README.md. Documentation templates established for connector and frontend READMEs. |
+| **Phase 1** | argocd-connector README.md and QUICKSTART.md. Frontend README.md and QUICKSTART.md. Swagger UI verified on all 3 argocd-connector instances. TROUBLESHOOTING.md updated with ArgoCD connectivity and auth issues. |
+| **Phase 2** | prometheus-connector README.md and QUICKSTART.md. Swagger UI verified on prometheus-connector. TROUBLESHOOTING.md updated with Azure Monitor Workspace query and auth issues. |
+| **Phase 3** | network-connector README.md and QUICKSTART.md. Swagger UI verified on all 6 network-connector instances. TROUBLESHOOTING.md updated with K8s API and ServiceAccount issues. OPERATIONS.md and RUNBOOK.md initial versions. |
+| **Phase 4** | All documentation reviewed for accuracy against running system. OPERATIONS.md and RUNBOOK.md finalised. QUICKSTART.md validated by pilot tenant (new user can follow it end-to-end without assistance). |
+
+### 9.4 Documentation Standards
+
+- **Format**: All documentation is Markdown, committed to the repository alongside the code it documents.
+- **Currency**: Documentation MUST be updated in the same PR as the code change it describes. A PR that changes API behaviour, configuration, or operational procedures without updating the corresponding documentation is incomplete.
+- **No external wikis**: All documentation lives in the repos. No Confluence, SharePoint, or other external documentation systems. The repos are the single source of truth for both code and docs.
+- **Code examples**: QUICKSTARTs must include copy-pasteable commands. Avoid placeholder values that require the reader to guess; use clearly marked variables (e.g., `<your-argocd-token>`).
+- **Versioning**: Documentation follows the same branching and review process as code. Changes to docs require PR review.
+
+---
+
+## 10. Security & Privacy
 
 | Concern | Approach |
 | ------- | -------- |
@@ -769,7 +851,7 @@ gitops-dashboard-deploy/
 
 ---
 
-## 10. Non-Functional Requirements
+## 11. Non-Functional Requirements
 
 | Category | Requirement |
 | -------- | ----------- |
@@ -787,6 +869,8 @@ gitops-dashboard-deploy/
 | **Authentication** | SSO/OIDC via Azure AD; soft tenancy (all authenticated users see all data) |
 | **Network access** | Private internal network only; no public internet exposure |
 | **Secret management** | External Secrets Operator + Azure Key Vault for all credentials |
+| **API documentation** | Swagger UI (`/docs`), ReDoc (`/redoc`), and OpenAPI JSON (`/openapi.json`) on every connector instance |
+| **Documentation** | README, QUICKSTART, and TROUBLESHOOTING maintained per component; updated each phase |
 | **Observability** | Structured JSON logs (`structlog`); Prometheus `/metrics` on each connector |
 | **Scalability** | Connectors support HPA; scale-to-zero on idle |
 | **Data residency** | No PII stored; no data written to disk; Redis in-cluster only |
@@ -794,7 +878,7 @@ gitops-dashboard-deploy/
 
 ---
 
-## 11. Risks & Roadmap
+## 12. Risks & Roadmap
 
 ### Technical Risks
 
@@ -813,17 +897,17 @@ Each phase is gated by approval of its OpenSpec proposals. No code generation or
 
 | Phase | Scope | Deliverables | Gate Condition |
 | ----- | ----- | ------------ | -------------- |
-| **Phase 0** (Weeks 1–3) | No proposals. Proposal template and review process established. | Repo scaffold. External Secrets / Key Vault wiring. ArgoCD API access verified for all 3 instances. Working dashboard mockup deployable as a Docker container (React static UI with mock data representing all 3 envs and 2 regions, no live connectors). Mockup is the visual contract for subsequent work. | Mockup Docker image builds and runs locally. Stakeholder sign-off on env/region layout. Proposal template merged to main. |
-| **Phase 1** (Weeks 4–6) | PROP-01: argocd-connector API surface (env-parameterised). PROP-02: Frontend module contract (app status + image promotion view). | Three argocd-connector instances (DEV/STAGE/PROD). React modules 1 & 2 wired to live connector data. Promotion pipeline view operational. | PROP-01 and PROP-02 approved. Generated tests pass. All 3 ArgoCD environments visible with correct East/West cluster routing. |
-| **Phase 2** (Weeks 7–9) | PROP-03: prometheus-connector API surface (multi-env label filtering). | prometheus-connector wired to Azure Monitor Workspace. React module 3 (CPU/Memory) operational across all environments and regions. Redis cache layer with per-connector TTL policy. | PROP-03 approved. Prometheus connector returns correctly labelled metrics for all 6 clusters. Module 3 renders live data with env/region filter. |
-| **Phase 3** (Weeks 10–12) | PROP-04: network-connector API surface (per-cluster). | Six network-connector instances (one per AKS cluster). React module 4 (Network Status) operational. All connectors deployed via ArgoCD with ESO-managed secrets. | PROP-04 approved. All 6 network-connector instances pass generated integration tests. Module 4 renders live NetworkPolicy data filterable by env and region. |
-| **Phase 4** (Weeks 13–15) | No new proposals. Spec-conformance validation run. | End-to-end integration tests across all environments and regions. Performance hardening. Spec-conformance gate. Internal pilot rollout to early-adopter tenants. | All connectors pass spec-conformance check. P95 load time < 3 s. Pilot tenant group onboarded. |
+| **Phase 0** (Weeks 1–3) | No proposals. Proposal template and review process established. | Repo scaffold. External Secrets / Key Vault wiring. ArgoCD API access verified for all 3 instances. Working dashboard mockup deployable as a Docker container (React static UI with mock data representing all 3 envs and 2 regions, no live connectors). Mockup is the visual contract for subsequent work. **Docs**: Project README.md, QUICKSTART.md (mock data mode), TROUBLESHOOTING.md (initial). Deploy repo README.md. Documentation templates for connectors and frontend. | Mockup Docker image builds and runs locally. Stakeholder sign-off on env/region layout. Proposal template merged to main. README and QUICKSTART validated. |
+| **Phase 1** (Weeks 4–6) | PROP-01: argocd-connector API surface (env-parameterised). PROP-02: Frontend module contract (app status + image promotion view). | Three argocd-connector instances (DEV/STAGE/PROD). React modules 1 & 2 wired to live connector data. Promotion pipeline view operational. **Docs**: argocd-connector README.md and QUICKSTART.md. Frontend README.md and QUICKSTART.md. Swagger UI verified on all 3 argocd-connector instances. TROUBLESHOOTING.md updated with ArgoCD connectivity and auth issues. | PROP-01 and PROP-02 approved. Generated tests pass. All 3 ArgoCD environments visible with correct East/West cluster routing. Swagger UI accessible on each instance. |
+| **Phase 2** (Weeks 7–9) | PROP-03: prometheus-connector API surface (multi-env label filtering). | prometheus-connector wired to Azure Monitor Workspace. React module 3 (CPU/Memory) operational across all environments and regions. Redis cache layer with per-connector TTL policy. **Docs**: prometheus-connector README.md and QUICKSTART.md. Swagger UI verified. TROUBLESHOOTING.md updated with Azure Monitor Workspace query and auth issues. | PROP-03 approved. Prometheus connector returns correctly labelled metrics for all 6 clusters. Module 3 renders live data with env/region filter. Swagger UI accessible. |
+| **Phase 3** (Weeks 10–12) | PROP-04: network-connector API surface (per-cluster). | Six network-connector instances (one per AKS cluster). React module 4 (Network Status) operational. All connectors deployed via ArgoCD with ESO-managed secrets. **Docs**: network-connector README.md and QUICKSTART.md. Swagger UI verified on all 6 instances. TROUBLESHOOTING.md updated with K8s API and ServiceAccount issues. OPERATIONS.md and RUNBOOK.md initial versions. | PROP-04 approved. All 6 network-connector instances pass generated integration tests. Module 4 renders live NetworkPolicy data filterable by env and region. Swagger UI accessible on all instances. |
+| **Phase 4** (Weeks 13–15) | No new proposals. Spec-conformance validation run. | End-to-end integration tests across all environments and regions. Performance hardening. Spec-conformance gate. Internal pilot rollout to early-adopter tenants. **Docs**: All documentation reviewed for accuracy. OPERATIONS.md and RUNBOOK.md finalised. QUICKSTART.md validated by pilot tenant (end-to-end without assistance). | All connectors pass spec-conformance check. P95 load time < 3 s. Pilot tenant group onboarded. Documentation review complete. |
 
 > **Post-MVP**: Additional features (RBAC refinement, alerting integration, additional data sources) will be evaluated based on pilot feedback and tracked as separate proposals.
 
 ---
 
-## 12. Resolved Decisions
+## 13. Resolved Decisions
 
 | Topic | Decision |
 | ----- | -------- |
@@ -837,10 +921,12 @@ Each phase is gated by approval of its OpenSpec proposals. No code generation or
 | **Tier classification** | Tier II — important but not critical. No formal SLAs. |
 | **Mutability** | Non-mutating. Read-only queries only. All writes through existing CI/CD and ArgoCD. |
 | **Network access** | Private internal network only. |
+| **API documentation** | Swagger UI (`/docs`) enabled on all connector instances in all environments. APIs defined and documented through Swagger. |
+| **Project documentation** | README, QUICKSTART, and TROUBLESHOOTING docs required per component. Updated each phase — not deferred to end. No external wikis. |
 
 ---
 
-## 13. Open Questions
+## 14. Open Questions
 
 | # | Question | Needed For | Status |
 | - | -------- | ---------- | ------ |
@@ -853,7 +939,7 @@ Each phase is gated by approval of its OpenSpec proposals. No code generation or
 
 ---
 
-## 14. Glossary
+## 15. Glossary
 
 | Term | Definition |
 | ---- | ---------- |
@@ -865,6 +951,7 @@ Each phase is gated by approval of its OpenSpec proposals. No code generation or
 | **OpenSpec** | API-first development standard (github.com/Fission-AI/OpenSpec). OpenAPI specs are the source of truth; code is generated from them. |
 | **Promotion pipeline** | The ordered sequence DEV-East → DEV-West → STAGE-East → STAGE-West → PROD-East → PROD-West through which a release progresses. |
 | **Soft tenancy** | Access model where all authenticated users share the same view. No per-team data isolation. |
+| **Swagger UI** | Interactive API documentation interface built into FastAPI. Served at `/docs` on each connector. Allows developers to explore endpoints, view schemas, and execute test requests. |
 | **TTL** | Time-to-live — Redis cache expiry duration per data type. |
 | **`dest.server`** | ArgoCD Application field identifying the target cluster URL; used to route applications to the correct regional AKS cluster. |
 | **`status.summary.images`** | ArgoCD Application status field listing container images deployed to the workload. Authoritative source for image tag data. |
