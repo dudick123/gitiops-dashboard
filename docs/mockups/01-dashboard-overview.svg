@@ -10,209 +10,228 @@
       .nav-item { fill: #cbd5e1; font-size: 13px; }
       .nav-active { fill: #38bdf8; font-size: 13px; font-weight: 600; }
       .stat-value { fill: #f8fafc; font-size: 28px; font-weight: 700; }
-      .stat-label { fill: #94a3b8; font-size: 11px; }
-      .green { fill: #22c55e; }
-      .amber { fill: #f59e0b; }
-      .red { fill: #ef4444; }
-      .blue { fill: #3b82f6; }
-      .green-bg { fill: #052e16; }
-      .amber-bg { fill: #451a03; }
-      .red-bg { fill: #450a0a; }
-      .badge { font-size: 10px; font-weight: 600; }
+      .divider { stroke: #334155; stroke-width: 1; }
       .filter-bg { fill: #334155; rx: 6; }
       .filter-active { fill: #1d4ed8; rx: 6; }
       .filter-text { fill: #e2e8f0; font-size: 11px; font-weight: 500; }
-      .divider { stroke: #334155; stroke-width: 1; }
       .timestamp { fill: #64748b; font-size: 10px; }
     </style>
   </defs>
 
-  <!-- Background -->
   <rect width="1200" height="800" class="bg"/>
 
   <!-- Sidebar -->
   <rect x="0" y="0" width="200" height="800" class="sidebar"/>
-  <text x="24" y="36" class="title" font-size="16">GitOps Dashboard</text>
+  <text x="24" y="36" fill="#f8fafc" font-size="16" font-weight="700">GitOps Dashboard</text>
   <text x="24" y="52" class="subtitle">Platform Observability</text>
 
   <line x1="16" y1="68" x2="184" y2="68" class="divider"/>
 
+  <!-- Project Scope Selector (sidebar, prominent) -->
+  <text x="24" y="88" fill="#94a3b8" font-size="9" font-weight="600" letter-spacing="0.05em">PROJECT SCOPE</text>
+  <rect x="12" y="94" width="176" height="32" fill="#0f172a" rx="6" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="24" y="114" fill="#38bdf8" font-size="12" font-weight="600">All Projects</text>
+  <text x="170" y="114" fill="#475569" font-size="12">&#x25BE;</text>
+  <text x="24" y="134" fill="#64748b" font-size="9">Platform-wide view (847 apps)</text>
+
+  <line x1="16" y1="148" x2="184" y2="148" class="divider"/>
+
   <!-- Nav Items -->
-  <rect x="8" y="80" width="184" height="32" fill="#1d4ed8" rx="6" opacity="0.3"/>
-  <text x="40" y="101" class="nav-active">Overview</text>
-  <circle cx="26" cy="96" r="4" fill="#38bdf8"/>
+  <rect x="8" y="156" width="184" height="30" fill="#1d4ed8" rx="6" opacity="0.3"/>
+  <text x="40" y="175" class="nav-active">Overview</text>
+  <circle cx="26" cy="171" r="4" fill="#38bdf8"/>
 
-  <text x="40" y="133" class="nav-item">App Status</text>
-  <circle cx="26" cy="128" r="4" fill="#475569"/>
+  <text x="40" y="205" class="nav-item">App Status</text>
+  <circle cx="26" cy="201" r="4" fill="#475569"/>
+  <text x="40" y="233" class="nav-item">Image Promotion</text>
+  <circle cx="26" cy="229" r="4" fill="#475569"/>
+  <text x="40" y="261" class="nav-item">Metrics</text>
+  <circle cx="26" cy="257" r="4" fill="#475569"/>
+  <text x="40" y="289" class="nav-item">Network Status</text>
+  <circle cx="26" cy="285" r="4" fill="#475569"/>
 
-  <text x="40" y="165" class="nav-item">Image Promotion</text>
-  <circle cx="26" cy="160" r="4" fill="#475569"/>
+  <line x1="16" y1="305" x2="184" y2="305" class="divider"/>
+  <text x="24" y="325" class="subtitle" font-size="9" font-weight="600" letter-spacing="0.05em">ENVIRONMENTS</text>
+  <circle cx="26" cy="345" r="5" fill="#22c55e"/><text x="40" y="349" class="nav-item" font-size="12">DEV — Healthy</text>
+  <circle cx="26" cy="367" r="5" fill="#22c55e"/><text x="40" y="371" class="nav-item" font-size="12">STAGE — Healthy</text>
+  <circle cx="26" cy="389" r="5" fill="#f59e0b"/><text x="40" y="393" class="nav-item" font-size="12">PROD — 2 Degraded</text>
 
-  <text x="40" y="197" class="nav-item">Metrics</text>
-  <circle cx="26" cy="192" r="4" fill="#475569"/>
-
-  <text x="40" y="229" class="nav-item">Network Status</text>
-  <circle cx="26" cy="224" r="4" fill="#475569"/>
-
-  <line x1="16" y1="252" x2="184" y2="252" class="divider"/>
-  <text x="24" y="276" class="subtitle">ENVIRONMENTS</text>
-  <circle cx="26" cy="296" r="5" class="green"/><text x="40" y="300" class="nav-item" font-size="12">DEV — Healthy</text>
-  <circle cx="26" cy="318" r="5" class="green"/><text x="40" y="322" class="nav-item" font-size="12">STAGE — Healthy</text>
-  <circle cx="26" cy="340" r="5" class="amber"/><text x="40" y="344" class="nav-item" font-size="12">PROD — 2 Degraded</text>
-
-  <!-- Main Content Area -->
-  <!-- Top Bar: Filters -->
+  <!-- Main Content -->
+  <!-- Top Bar: Project indicator + Filters -->
   <rect x="216" y="12" width="968" height="44" fill="#1e293b" rx="8"/>
-  <text x="232" y="28" class="card-header">Environment</text>
-  <rect x="232" y="34" width="36" height="18" class="filter-active"/><text x="237" y="47" class="filter-text">ALL</text>
-  <rect x="274" y="34" width="36" height="18" class="filter-bg"/><text x="279" y="47" class="filter-text">DEV</text>
-  <rect x="316" y="34" width="50" height="18" class="filter-bg"/><text x="321" y="47" class="filter-text">STAGE</text>
-  <rect x="372" y="34" width="44" height="18" class="filter-bg"/><text x="377" y="47" class="filter-text">PROD</text>
 
-  <line x1="432" y1="18" x2="432" y2="50" class="divider"/>
+  <!-- Active scope badge -->
+  <rect x="228" y="22" width="108" height="24" fill="#0f172a" rx="4" stroke="#3b82f6" stroke-width="1"/>
+  <text x="240" y="38" fill="#38bdf8" font-size="10" font-weight="600">ALL PROJECTS</text>
+  <text x="324" y="38" fill="#475569" font-size="10">|</text>
 
-  <text x="448" y="28" class="card-header">Region</text>
-  <rect x="448" y="34" width="42" height="18" class="filter-active"/><text x="453" y="47" class="filter-text">BOTH</text>
-  <rect x="496" y="34" width="42" height="18" class="filter-bg"/><text x="501" y="47" class="filter-text">EAST</text>
-  <rect x="544" y="34" width="46" height="18" class="filter-bg"/><text x="549" y="47" class="filter-text">WEST</text>
+  <text x="340" y="28" class="card-header">Environment</text>
+  <rect x="340" y="34" width="36" height="18" class="filter-active"/><text x="345" y="47" class="filter-text">ALL</text>
+  <rect x="382" y="34" width="36" height="18" class="filter-bg"/><text x="387" y="47" class="filter-text">DEV</text>
+  <rect x="424" y="34" width="50" height="18" class="filter-bg"/><text x="429" y="47" class="filter-text">STAGE</text>
+  <rect x="480" y="34" width="44" height="18" class="filter-bg"/><text x="485" y="47" class="filter-text">PROD</text>
 
-  <line x1="606" y1="18" x2="606" y2="50" class="divider"/>
+  <line x1="540" y1="18" x2="540" y2="50" class="divider"/>
 
-  <!-- Search -->
-  <rect x="622" y="30" width="200" height="24" fill="#0f172a" rx="4" stroke="#475569" stroke-width="1"/>
-  <text x="634" y="46" fill="#64748b" font-size="12">Search applications...</text>
+  <text x="556" y="28" class="card-header">Region</text>
+  <rect x="556" y="34" width="42" height="18" class="filter-active"/><text x="561" y="47" class="filter-text">BOTH</text>
+  <rect x="604" y="34" width="42" height="18" class="filter-bg"/><text x="609" y="47" class="filter-text">EAST</text>
+  <rect x="652" y="34" width="46" height="18" class="filter-bg"/><text x="657" y="47" class="filter-text">WEST</text>
 
   <text x="1100" y="40" class="timestamp">Last refreshed: 12s ago</text>
 
+  <!-- Page Title -->
+  <text x="232" y="82" fill="#f8fafc" font-size="16" font-weight="700">Platform Overview</text>
+  <text x="400" y="82" fill="#64748b" font-size="12">All Projects — 847 applications across 6 clusters</text>
+
   <!-- Summary Stats Row -->
-  <rect x="216" y="68" width="230" height="90" class="card" rx="8"/>
-  <text x="232" y="90" class="card-header">Total Applications</text>
-  <text x="232" y="128" class="stat-value">847</text>
-  <text x="290" y="128" fill="#64748b" font-size="14">across 6 clusters</text>
+  <rect x="216" y="94" width="230" height="82" class="card" rx="8"/>
+  <text x="232" y="114" class="card-header">Total Applications</text>
+  <text x="232" y="148" class="stat-value">847</text>
+  <text x="290" y="148" fill="#64748b" font-size="14">across 6 clusters</text>
 
-  <rect x="458" y="68" width="230" height="90" class="card" rx="8"/>
-  <text x="474" y="90" class="card-header">Healthy / Synced</text>
-  <text x="474" y="128" class="stat-value" fill="#22c55e">831</text>
-  <text x="530" y="128" fill="#64748b" font-size="14">98.1%</text>
+  <rect x="458" y="94" width="230" height="82" class="card" rx="8"/>
+  <text x="474" y="114" class="card-header">Healthy / Synced</text>
+  <text x="474" y="148" class="stat-value" fill="#22c55e">831</text>
+  <text x="530" y="148" fill="#64748b" font-size="14">98.1%</text>
 
-  <rect x="700" y="68" width="230" height="90" class="card" rx="8"/>
-  <text x="716" y="90" class="card-header">Degraded / OutOfSync</text>
-  <text x="716" y="128" class="stat-value" fill="#f59e0b">14</text>
-  <text x="756" y="128" fill="#64748b" font-size="14">1.7%</text>
+  <rect x="700" y="94" width="230" height="82" class="card" rx="8"/>
+  <text x="716" y="114" class="card-header">Degraded / OutOfSync</text>
+  <text x="716" y="148" class="stat-value" fill="#f59e0b">14</text>
+  <text x="756" y="148" fill="#64748b" font-size="14">1.7%</text>
 
-  <rect x="942" y="68" width="242" height="90" class="card" rx="8"/>
-  <text x="958" y="90" class="card-header">Unknown / Error</text>
-  <text x="958" y="128" class="stat-value" fill="#ef4444">2</text>
-  <text x="984" y="128" fill="#64748b" font-size="14">0.2%</text>
+  <rect x="942" y="94" width="242" height="82" class="card" rx="8"/>
+  <text x="958" y="114" class="card-header">Unknown / Error</text>
+  <text x="958" y="148" class="stat-value" fill="#ef4444">2</text>
+  <text x="984" y="148" fill="#64748b" font-size="14">0.2%</text>
 
   <!-- Environment Health Grid -->
-  <rect x="216" y="172" width="550" height="280" class="card" rx="8"/>
-  <text x="232" y="196" class="card-header">Environment Health Summary</text>
+  <rect x="216" y="190" width="550" height="260" class="card" rx="8"/>
+  <text x="232" y="214" class="card-header">Environment Health Summary</text>
 
-  <!-- Grid Headers -->
-  <text x="232" y="226" fill="#64748b" font-size="11" font-weight="600">ENVIRONMENT</text>
-  <text x="370" y="226" fill="#64748b" font-size="11" font-weight="600">EAST US</text>
-  <text x="470" y="226" fill="#64748b" font-size="11" font-weight="600">WEST US</text>
-  <text x="570" y="226" fill="#64748b" font-size="11" font-weight="600">APPS</text>
-  <text x="650" y="226" fill="#64748b" font-size="11" font-weight="600">STATUS</text>
+  <text x="232" y="240" fill="#64748b" font-size="11" font-weight="600">ENVIRONMENT</text>
+  <text x="370" y="240" fill="#64748b" font-size="11" font-weight="600">EAST US</text>
+  <text x="470" y="240" fill="#64748b" font-size="11" font-weight="600">WEST US</text>
+  <text x="570" y="240" fill="#64748b" font-size="11" font-weight="600">APPS</text>
+  <text x="650" y="240" fill="#64748b" font-size="11" font-weight="600">STATUS</text>
+  <line x1="232" y1="248" x2="750" y2="248" class="divider"/>
 
-  <line x1="232" y1="234" x2="750" y2="234" class="divider"/>
+  <!-- DEV -->
+  <rect x="232" y="254" width="56" height="22" fill="#1d4ed8" rx="4"/><text x="244" y="269" fill="#e2e8f0" font-size="11" font-weight="600">DEV</text>
+  <circle cx="386" cy="268" r="6" fill="#22c55e"/><text x="398" y="272" fill="#cbd5e1" font-size="12">Healthy</text>
+  <circle cx="486" cy="268" r="6" fill="#22c55e"/><text x="498" y="272" fill="#cbd5e1" font-size="12">Healthy</text>
+  <text x="570" y="272" fill="#e2e8f0" font-size="13" font-weight="500">284</text>
+  <rect x="636" y="258" width="80" height="20" fill="#052e16" rx="4"/><text x="652" y="272" fill="#22c55e" font-size="11" font-weight="600">All Synced</text>
 
-  <!-- DEV Row -->
-  <rect x="232" y="240" width="56" height="22" fill="#1d4ed8" rx="4"/><text x="244" y="255" fill="#e2e8f0" font-size="11" font-weight="600">DEV</text>
-  <circle cx="386" cy="254" r="6" class="green"/><text x="398" y="258" fill="#cbd5e1" font-size="12">Healthy</text>
-  <circle cx="486" cy="254" r="6" class="green"/><text x="498" y="258" fill="#cbd5e1" font-size="12">Healthy</text>
-  <text x="570" y="258" fill="#e2e8f0" font-size="13" font-weight="500">284</text>
-  <rect x="636" y="244" width="80" height="20" fill="#052e16" rx="4"/><text x="652" y="258" fill="#22c55e" font-size="11" font-weight="600">All Synced</text>
+  <!-- STAGE -->
+  <line x1="232" y1="288" x2="750" y2="288" class="divider" opacity="0.3"/>
+  <rect x="232" y="298" width="56" height="22" fill="#7c3aed" rx="4"/><text x="237" y="313" fill="#e2e8f0" font-size="11" font-weight="600">STAGE</text>
+  <circle cx="386" cy="312" r="6" fill="#22c55e"/><text x="398" y="316" fill="#cbd5e1" font-size="12">Healthy</text>
+  <circle cx="486" cy="312" r="6" fill="#22c55e"/><text x="498" y="316" fill="#cbd5e1" font-size="12">Healthy</text>
+  <text x="570" y="316" fill="#e2e8f0" font-size="13" font-weight="500">281</text>
+  <rect x="636" y="302" width="80" height="20" fill="#052e16" rx="4"/><text x="652" y="316" fill="#22c55e" font-size="11" font-weight="600">All Synced</text>
 
-  <!-- STAGE Row -->
-  <line x1="232" y1="274" x2="750" y2="274" class="divider" opacity="0.3"/>
-  <rect x="232" y="284" width="56" height="22" fill="#7c3aed" rx="4"/><text x="237" y="299" fill="#e2e8f0" font-size="11" font-weight="600">STAGE</text>
-  <circle cx="386" cy="298" r="6" class="green"/><text x="398" y="302" fill="#cbd5e1" font-size="12">Healthy</text>
-  <circle cx="486" cy="298" r="6" class="green"/><text x="498" y="302" fill="#cbd5e1" font-size="12">Healthy</text>
-  <text x="570" y="302" fill="#e2e8f0" font-size="13" font-weight="500">281</text>
-  <rect x="636" y="288" width="80" height="20" fill="#052e16" rx="4"/><text x="652" y="302" fill="#22c55e" font-size="11" font-weight="600">All Synced</text>
+  <!-- PROD -->
+  <line x1="232" y1="332" x2="750" y2="332" class="divider" opacity="0.3"/>
+  <rect x="232" y="342" width="56" height="22" fill="#dc2626" rx="4"/><text x="240" y="357" fill="#e2e8f0" font-size="11" font-weight="600">PROD</text>
+  <circle cx="386" cy="356" r="6" fill="#f59e0b"/><text x="398" y="360" fill="#cbd5e1" font-size="12">2 Degraded</text>
+  <circle cx="486" cy="356" r="6" fill="#22c55e"/><text x="498" y="360" fill="#cbd5e1" font-size="12">Healthy</text>
+  <text x="570" y="360" fill="#e2e8f0" font-size="13" font-weight="500">282</text>
+  <rect x="636" y="346" width="80" height="20" fill="#451a03" rx="4"/><text x="644" y="360" fill="#f59e0b" font-size="11" font-weight="600">2 OutOfSync</text>
 
-  <!-- PROD Row -->
-  <line x1="232" y1="318" x2="750" y2="318" class="divider" opacity="0.3"/>
-  <rect x="232" y="328" width="56" height="22" fill="#dc2626" rx="4"/><text x="240" y="343" fill="#e2e8f0" font-size="11" font-weight="600">PROD</text>
-  <circle cx="386" cy="342" r="6" class="amber"/><text x="398" y="346" fill="#cbd5e1" font-size="12">2 Degraded</text>
-  <circle cx="486" cy="342" r="6" class="green"/><text x="498" y="346" fill="#cbd5e1" font-size="12">Healthy</text>
-  <text x="570" y="346" fill="#e2e8f0" font-size="13" font-weight="500">282</text>
-  <rect x="636" y="332" width="80" height="20" fill="#451a03" rx="4"/><text x="644" y="346" fill="#f59e0b" font-size="11" font-weight="600">2 OutOfSync</text>
+  <!-- Top Projects by issue count -->
+  <text x="232" y="400" fill="#94a3b8" font-size="10" font-weight="600">PROJECTS WITH ISSUES</text>
+  <line x1="232" y1="408" x2="750" y2="408" class="divider" opacity="0.3"/>
+  <text x="248" y="426" fill="#f59e0b" font-size="11" font-weight="500">payments</text>
+  <text x="400" y="426" fill="#64748b" font-size="10">2 degraded apps (PROD-East)</text>
+  <text x="248" y="444" fill="#f59e0b" font-size="11" font-weight="500">platform-infra</text>
+  <text x="400" y="444" fill="#64748b" font-size="10">12 OOMs this week, CPU over limit</text>
 
-  <!-- Promotion Status Summary -->
-  <rect x="778" y="172" width="406" height="280" class="card" rx="8"/>
-  <text x="794" y="196" class="card-header">Recent Promotion Activity</text>
+  <!-- Promotion Activity -->
+  <rect x="778" y="190" width="406" height="260" class="card" rx="8"/>
+  <text x="794" y="214" class="card-header">Recent Promotion Activity</text>
 
-  <!-- Promotion items -->
-  <rect x="794" y="210" width="374" height="48" fill="#0f172a" rx="6"/>
-  <text x="810" y="230" fill="#e2e8f0" font-size="13" font-weight="500">payment-service</text>
-  <text x="810" y="246" fill="#64748b" font-size="11">v2.4.1 — STAGE-West → PROD-East</text>
-  <rect x="1080" y="222" width="72" height="20" fill="#052e16" rx="4"/><text x="1088" y="236" fill="#22c55e" font-size="10" font-weight="600">ON TRACK</text>
+  <rect x="794" y="226" width="374" height="44" fill="#0f172a" rx="6"/>
+  <text x="810" y="244" fill="#94a3b8" font-size="9" font-weight="600">payments</text>
+  <text x="810" y="258" fill="#e2e8f0" font-size="12" font-weight="500">payment-service v2.4.1</text>
+  <text x="810" y="268" fill="#64748b" font-size="10">STAGE-West → PROD-East</text>
+  <rect x="1080" y="240" width="72" height="20" fill="#052e16" rx="4"/><text x="1088" y="254" fill="#22c55e" font-size="10" font-weight="600">ON TRACK</text>
 
-  <rect x="794" y="266" width="374" height="48" fill="#0f172a" rx="6"/>
-  <text x="810" y="286" fill="#e2e8f0" font-size="13" font-weight="500">auth-gateway</text>
-  <text x="810" y="302" fill="#64748b" font-size="11">v1.12.0 — DEV-East → DEV-West</text>
-  <rect x="1080" y="278" width="72" height="20" fill="#052e16" rx="4"/><text x="1088" y="292" fill="#22c55e" font-size="10" font-weight="600">ON TRACK</text>
+  <rect x="794" y="278" width="374" height="44" fill="#0f172a" rx="6"/>
+  <text x="810" y="296" fill="#94a3b8" font-size="9" font-weight="600">identity</text>
+  <text x="810" y="310" fill="#e2e8f0" font-size="12" font-weight="500">auth-gateway v1.12.0</text>
+  <text x="810" y="320" fill="#64748b" font-size="10">DEV-East → DEV-West</text>
+  <rect x="1080" y="292" width="72" height="20" fill="#052e16" rx="4"/><text x="1088" y="306" fill="#22c55e" font-size="10" font-weight="600">ON TRACK</text>
 
-  <rect x="794" y="322" width="374" height="48" fill="#0f172a" rx="6"/>
-  <text x="810" y="342" fill="#e2e8f0" font-size="13" font-weight="500">order-processor</text>
-  <text x="810" y="358" fill="#64748b" font-size="11">v3.1.0 — STAGE-East (stalled at STAGE-West)</text>
-  <rect x="1080" y="334" width="72" height="20" fill="#451a03" rx="4"/><text x="1090" y="348" fill="#f59e0b" font-size="10" font-weight="600">STALLED</text>
+  <rect x="794" y="330" width="374" height="44" fill="#0f172a" rx="6"/>
+  <text x="810" y="348" fill="#94a3b8" font-size="9" font-weight="600">orders</text>
+  <text x="810" y="362" fill="#e2e8f0" font-size="12" font-weight="500">order-processor v3.1.0</text>
+  <text x="810" y="372" fill="#64748b" font-size="10">Stalled at STAGE-West</text>
+  <rect x="1080" y="344" width="72" height="20" fill="#451a03" rx="4"/><text x="1090" y="358" fill="#f59e0b" font-size="10" font-weight="600">STALLED</text>
 
-  <rect x="794" y="378" width="374" height="48" fill="#0f172a" rx="6"/>
-  <text x="810" y="398" fill="#e2e8f0" font-size="13" font-weight="500">user-profile-svc</text>
-  <text x="810" y="414" fill="#64748b" font-size="11">v1.8.3 — PROD-East → PROD-West</text>
-  <rect x="1080" y="390" width="72" height="20" fill="#052e16" rx="4"/><text x="1088" y="404" fill="#22c55e" font-size="10" font-weight="600">ON TRACK</text>
+  <rect x="794" y="382" width="374" height="44" fill="#0f172a" rx="6"/>
+  <text x="810" y="400" fill="#94a3b8" font-size="9" font-weight="600">identity</text>
+  <text x="810" y="414" fill="#e2e8f0" font-size="12" font-weight="500">user-profile-svc v1.8.3</text>
+  <text x="810" y="424" fill="#64748b" font-size="10">PROD-East → PROD-West</text>
+  <rect x="1080" y="396" width="72" height="20" fill="#052e16" rx="4"/><text x="1088" y="410" fill="#22c55e" font-size="10" font-weight="600">ON TRACK</text>
 
   <!-- Metrics Summary -->
-  <rect x="216" y="466" width="550" height="200" class="card" rx="8"/>
-  <text x="232" y="490" class="card-header">Resource Utilization (All Environments)</text>
+  <rect x="216" y="464" width="550" height="190" class="card" rx="8"/>
+  <text x="232" y="488" class="card-header">Resource Utilization (All Namespaces)</text>
 
-  <!-- CPU Bar -->
-  <text x="232" y="520" fill="#cbd5e1" font-size="12">CPU Usage</text>
-  <text x="700" y="520" fill="#94a3b8" font-size="11" text-anchor="end">42% avg</text>
-  <rect x="232" y="528" width="520" height="12" fill="#0f172a" rx="3"/>
-  <rect x="232" y="528" width="218" height="12" fill="#3b82f6" rx="3"/>
+  <text x="232" y="514" fill="#cbd5e1" font-size="12">CPU Usage</text>
+  <text x="700" y="514" fill="#94a3b8" font-size="11" text-anchor="end">42% avg</text>
+  <rect x="232" y="522" width="520" height="12" fill="#0f172a" rx="3"/>
+  <rect x="232" y="522" width="218" height="12" fill="#3b82f6" rx="3"/>
 
-  <!-- Memory Bar -->
-  <text x="232" y="564" fill="#cbd5e1" font-size="12">Memory Usage</text>
-  <text x="700" y="564" fill="#94a3b8" font-size="11" text-anchor="end">61% avg</text>
-  <rect x="232" y="572" width="520" height="12" fill="#0f172a" rx="3"/>
-  <rect x="232" y="572" width="317" height="12" fill="#8b5cf6" rx="3"/>
+  <text x="232" y="552" fill="#cbd5e1" font-size="12">Memory Usage</text>
+  <text x="700" y="552" fill="#94a3b8" font-size="11" text-anchor="end">61% avg</text>
+  <rect x="232" y="560" width="520" height="12" fill="#0f172a" rx="3"/>
+  <rect x="232" y="560" width="317" height="12" fill="#8b5cf6" rx="3"/>
 
-  <!-- Mini sparklines as simple polylines -->
-  <text x="232" y="610" fill="#94a3b8" font-size="11">CPU Trend (last 10 intervals)</text>
-  <polyline points="232,640 260,635 288,638 316,630 344,632 372,628 400,634 428,626 456,630 484,625" fill="none" stroke="#3b82f6" stroke-width="2"/>
-  <text x="520" y="610" fill="#94a3b8" font-size="11">Memory Trend (last 10 intervals)</text>
-  <polyline points="520,638 548,636 576,640 604,635 632,638 660,642 688,639 716,644 744,641 772,646" fill="none" stroke="#8b5cf6" stroke-width="2"/>
+  <text x="232" y="590" fill="#94a3b8" font-size="11">CPU Trend (last 10 intervals)</text>
+  <polyline points="232,618 260,613 288,616 316,608 344,610 372,606 400,612 428,604 456,608 484,603" fill="none" stroke="#3b82f6" stroke-width="2"/>
+  <text x="520" y="590" fill="#94a3b8" font-size="11">Memory Trend (last 10 intervals)</text>
+  <polyline points="520,616 548,614 576,618 604,613 632,616 660,620 688,617 716,622 744,619 772,624" fill="none" stroke="#8b5cf6" stroke-width="2"/>
+
+  <!-- Top namespaces by OOMs -->
+  <text x="232" y="644" fill="#ef4444" font-size="10" font-weight="600">OOM Hotspots (7d):</text>
+  <text x="356" y="644" fill="#94a3b8" font-size="10">platform (12) | orders (3)</text>
 
   <!-- Network Policy Summary -->
-  <rect x="778" y="466" width="406" height="200" class="card" rx="8"/>
-  <text x="794" y="490" class="card-header">Network Policy Coverage</text>
+  <rect x="778" y="464" width="406" height="190" class="card" rx="8"/>
+  <text x="794" y="488" class="card-header">Network Policy Coverage</text>
 
-  <text x="794" y="520" fill="#cbd5e1" font-size="12">Namespaces with policies</text>
-  <text x="1120" y="520" fill="#22c55e" font-size="13" font-weight="600" text-anchor="end">94%</text>
-  <rect x="794" y="528" width="370" height="10" fill="#0f172a" rx="3"/>
-  <rect x="794" y="528" width="348" height="10" fill="#22c55e" rx="3"/>
+  <text x="794" y="514" fill="#cbd5e1" font-size="12">Namespaces with policies</text>
+  <text x="1120" y="514" fill="#22c55e" font-size="13" font-weight="600" text-anchor="end">94%</text>
+  <rect x="794" y="522" width="370" height="10" fill="#0f172a" rx="3"/>
+  <rect x="794" y="522" width="348" height="10" fill="#22c55e" rx="3"/>
 
-  <text x="794" y="560" fill="#cbd5e1" font-size="12">Namespaces with egress restrictions</text>
-  <text x="1120" y="560" fill="#f59e0b" font-size="13" font-weight="600" text-anchor="end">87%</text>
-  <rect x="794" y="568" width="370" height="10" fill="#0f172a" rx="3"/>
-  <rect x="794" y="568" width="322" height="10" fill="#f59e0b" rx="3"/>
+  <text x="794" y="550" fill="#cbd5e1" font-size="12">Egress restricted</text>
+  <text x="1120" y="550" fill="#f59e0b" font-size="13" font-weight="600" text-anchor="end">87%</text>
+  <rect x="794" y="558" width="370" height="10" fill="#0f172a" rx="3"/>
+  <rect x="794" y="558" width="322" height="10" fill="#f59e0b" rx="3"/>
 
-  <rect x="794" y="594" width="370" height="56" fill="#451a03" rx="6" opacity="0.5"/>
-  <text x="810" y="614" fill="#f59e0b" font-size="12" font-weight="600">3 namespaces have open egress</text>
-  <text x="810" y="632" fill="#fbbf24" font-size="11">monitoring (DEV-E), sandbox (DEV-W), test-infra (STAGE-E)</text>
+  <!-- Cilium summary -->
+  <text x="794" y="588" fill="#94a3b8" font-size="10" font-weight="600">CILIUM FLOW DROPS (1h)</text>
+  <text x="794" y="608" fill="#ef4444" font-size="11" font-weight="500">Ingress: 1,247</text>
+  <text x="900" y="608" fill="#f59e0b" font-size="11" font-weight="500">Egress: 342</text>
+  <text x="1000" y="608" fill="#f59e0b" font-size="11" font-weight="500">Resets: 89</text>
+
+  <rect x="794" y="618" width="370" height="28" fill="#451a03" rx="4" opacity="0.5"/>
+  <text x="810" y="636" fill="#f59e0b" font-size="10" font-weight="500">Top: payments (PROD-E) — 847 ingress drops/hr</text>
 
   <!-- Footer -->
-  <rect x="216" y="678" width="968" height="28" fill="#1e293b" rx="6"/>
-  <text x="232" y="696" fill="#64748b" font-size="10">ArgoCD: 12s ago | Prometheus: 45s ago | Network: 98s ago</text>
-  <text x="1100" y="696" fill="#475569" font-size="10" text-anchor="end">Tier II — Internal Only</text>
+  <rect x="216" y="668" width="968" height="28" fill="#1e293b" rx="6"/>
+  <text x="232" y="686" fill="#64748b" font-size="10">ArgoCD: 12s ago | Prometheus: 45s ago | Network: 98s ago | Cilium: 30s ago</text>
+  <text x="1100" y="686" fill="#475569" font-size="10" text-anchor="end">Tier II — Internal Only</text>
+
+  <!-- Hint: project selection callout -->
+  <rect x="216" y="706" width="968" height="38" fill="#1e293b" rx="8" stroke="#334155" stroke-width="1"/>
+  <text x="232" y="726" fill="#94a3b8" font-size="11" font-weight="500">Tip: Select a project from the sidebar to see ApplicationSets, Deployment-level metrics, and scoped network flows for your team.</text>
+  <text x="1100" y="726" fill="#475569" font-size="10" text-anchor="end">PS-01, PS-02</text>
 
   <!-- Mockup label -->
-  <rect x="216" y="720" width="968" height="70" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="4" rx="8"/>
-  <text x="700" y="748" fill="#475569" font-size="12" text-anchor="middle" font-style="italic">Mockup 1/6 — Dashboard Overview</text>
-  <text x="700" y="766" fill="#475569" font-size="11" text-anchor="middle">Persona: Engineering Leadership, SRE — high-level platform health at a glance</text>
+  <rect x="216" y="754" width="968" height="36" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="4" rx="8"/>
+  <text x="700" y="777" fill="#475569" font-size="12" text-anchor="middle" font-style="italic">Mockup 1/6 — Dashboard Overview (Platform View — All Projects)</text>
 </svg>

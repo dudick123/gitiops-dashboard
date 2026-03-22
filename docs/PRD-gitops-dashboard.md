@@ -4,7 +4,7 @@
 
 | Field                 | Value                                                        |
 | --------------------- | ------------------------------------------------------------ |
-| **Version**           | 2.0                                                          |
+| **Version**           | 2.1                                                          |
 | **Status**            | Draft                                                        |
 | **Date**              | 2026-03-22                                                   |
 | **Owner**             | Platform Engineering Team                                    |
@@ -56,19 +56,29 @@ The dashboard is built as a set of independent FastAPI microservice connectors (
 
 ### User Stories
 
+#### Project Scoping
+
+| ID | Story | Acceptance Criteria |
+| -- | ----- | ------------------- |
+| PS-01 | As a **tenant developer**, I want to select my ArgoCD project before viewing dashboard details so that I only see data relevant to my team's workloads. | A persistent project scope selector is visible on all modules. Selecting a project filters all downstream modules to that project's ApplicationSets, Applications, namespaces, metrics, and network data. |
+| PS-02 | As an **engineering leader**, I want a platform-wide view that shows aggregated data across all projects so that I can assess overall platform health without selecting a specific project. | An "All Projects" option in the project selector renders the platform-level rollup view. This is the default landing state. |
+| PS-03 | As a **tech lead**, I want the project selector to resolve to the correct Kubernetes namespace(s) automatically so that metrics and network data are scoped without manual namespace entry. | Selecting an ArgoCD project automatically resolves to its target namespace(s) via the ArgoCD project spec's `destinations` field. All downstream modules use the resolved namespace(s) for filtering. |
+| PS-04 | As a **tenant developer**, I want my project selection to persist across browser sessions so that I don't have to re-select my project each time I open the dashboard. | Project selection is stored in `localStorage` and restored on page load. A "clear" action resets to "All Projects." |
+
 #### Application Status
 
 | ID | Story | Acceptance Criteria |
 | -- | ----- | ------------------- |
-| AS-01 | As a **tenant developer**, I want to see my application's health and sync status across all environments on one screen so that I don't need to log into three ArgoCD instances. | Dashboard displays health (Healthy/Degraded/Unknown) and sync (Synced/OutOfSync/Error) for each app across DEV, STAGE, PROD with East/West sub-columns. |
-| AS-02 | As a **tech lead**, I want to filter applications by name or team so that I can focus on my team's services. | Text search filters the application list in real time. |
+| AS-01 | As a **tenant developer**, I want to see my application's health and sync status across all environments on one screen so that I don't need to log into three ArgoCD instances. | Dashboard displays health (Healthy/Degraded/Unknown) and sync (Synced/OutOfSync/Error) for each app across DEV, STAGE, PROD with East/West sub-columns. When a project is selected, only Applications belonging to that project are shown. |
+| AS-02 | As a **tech lead**, I want to filter applications by name or team so that I can focus on my team's services. | Text search filters the application list in real time. Search operates within the current project scope. |
 | AS-03 | As a **tenant developer**, I want to see when data was last refreshed so that I know if I'm looking at stale information. | Each data section displays a "Last updated" timestamp. If a source is unreachable, the section shows "Unknown" status with the last successful refresh time. |
+| AS-04 | As a **tech lead**, I want to see ApplicationSets and their generated Applications grouped together so that I can understand the relationship between my templates and the deployed instances. | When a project is selected, ApplicationSets are displayed as parent rows with their child Applications nested underneath. Each child shows its target environment and region. In "All Projects" mode, ApplicationSets are not expanded (only the flat Application list is shown). |
 
 #### Image Promotion
 
 | ID | Story | Acceptance Criteria |
 | -- | ----- | ------------------- |
-| IP-01 | As a **tech lead**, I want to see which image tag is deployed at each stage of the promotion pipeline for a given application so that I can confirm promotions completed correctly. | Promotion view shows tag per step: DEV-East → DEV-West → STAGE-East → STAGE-West → PROD-East → PROD-West. |
+| IP-01 | As a **tech lead**, I want to see which image tag is deployed at each stage of the promotion pipeline for a given application so that I can confirm promotions completed correctly. | Promotion view shows tag per step: DEV-East → DEV-West → STAGE-East → STAGE-West → PROD-East → PROD-West. When a project is selected, only that project's Applications are shown in the promotion grid. |
 | IP-02 | As a **tech lead**, I want mismatched tags between pipeline steps highlighted so that stalled or failed promotions are immediately visible. | Cells with tag mismatches between adjacent steps are visually flagged (amber highlight). |
 | IP-03 | As a **security auditor**, I want non-semver image tags flagged so that I can identify images that may not follow the approved release process. | Tags not matching semver pattern display a warning indicator. |
 
@@ -76,16 +86,20 @@ The dashboard is built as a set of independent FastAPI microservice connectors (
 
 | ID | Story | Acceptance Criteria |
 | -- | ----- | ------------------- |
-| MT-01 | As an **SRE**, I want to see CPU and memory usage by namespace and pod, filterable by environment and region, so that I can spot resource pressure without opening the Azure portal. | Metrics module displays CPU/memory at namespace and pod level, filterable by environment (DEV/STAGE/PROD) and region (East/West). |
-| MT-02 | As an **SRE**, I want trend sparklines so that I can see directional changes at a glance. | Sparkline charts show the last 10 polling intervals of data. |
-| MT-03 | As a **tenant developer**, I want to see namespace resource quota utilisation so that I know how close my namespace is to its limits. | Namespace quota utilisation bar displayed alongside raw usage values. |
+| MT-01 | As an **SRE**, I want to see CPU and memory usage by namespace and pod, filterable by environment and region, so that I can spot resource pressure without opening the Azure portal. | In "All Projects" mode, metrics module displays CPU/memory at namespace level, filterable by environment (DEV/STAGE/PROD) and region (East/West). When a project is selected, metrics display at Deployment, StatefulSet, and Job level within the project's namespace(s). |
+| MT-02 | As an **SRE**, I want trend sparklines so that I can see directional changes at a glance. | Sparkline charts show the last 10 polling intervals of data. In project-scoped mode, sparklines are shown per workload (Deployment/Job). |
+| MT-03 | As a **tenant developer**, I want to see namespace resource quota utilisation so that I know how close my namespace is to its limits. | Namespace quota utilisation bar displayed alongside raw usage values. In project-scoped mode, the quota section shows quota for the project's resolved namespace(s) only. |
+| MT-04 | As a **tenant developer**, I want to see request/limit ratios and OOM events for my specific Deployments so that I can right-size my workloads. | In project-scoped mode, each Deployment/StatefulSet/Job row shows: current request/limit ratio, 7-day max request/limit ratio, current quota usage, 7-day max quota, and OOM kill count (7-day). Container-level breakdown is available as a drill-down. |
+| MT-05 | As an **SRE**, I want OOM events attributed to specific containers so that I can identify which sidecar or main process is causing memory pressure. | OOM event log shows pod name, container name, memory at kill vs limit, and timestamp. In project-scoped mode, only OOM events for the selected project's namespace(s) are shown. |
 
 #### Network Status
 
 | ID | Story | Acceptance Criteria |
 | -- | ----- | ------------------- |
-| NS-01 | As a **security auditor**, I want to see active NetworkPolicy objects per namespace so that I can verify network isolation is enforced. | Network module lists NetworkPolicy objects per namespace, filterable by environment and cluster. |
+| NS-01 | As a **security auditor**, I want to see active NetworkPolicy objects per namespace so that I can verify network isolation is enforced. | Network module lists NetworkPolicy objects per namespace, filterable by environment and cluster. In project-scoped mode, only policies for the project's namespace(s) are shown. |
 | NS-02 | As a **security auditor**, I want namespaces with no egress restriction flagged so that I can identify gaps in network policy coverage. | Namespaces with open egress display a warning badge. |
+| NS-03 | As a **tenant developer**, I want to see Cilium L3/L4 flow drops and TCP resets involving my namespace so that I can diagnose connectivity issues without access to Hubble CLI. | In project-scoped mode, the Cilium flow summary and denied connections log are filtered to traffic where the selected namespace is either source or destination. Drop counts, reset counts, and policy verdicts are shown per source/dest pair. |
+| NS-04 | As a **security auditor**, I want to see which specific connections are being denied by NetworkPolicies so that I can verify policies are working as intended and identify missing allow rules. | Denied connections table shows direction, source namespace, destination namespace, protocol, port, drop count, reset count, cluster, and the policy verdict that caused the deny. |
 
 #### Degraded State Handling
 
@@ -238,9 +252,13 @@ Three instances deployed — one per environment. Each instance is configured at
 
 | Method | Path | Description |
 | ------ | ---- | ----------- |
-| GET | `/apps` | Lists all ArgoCD Application resources for this instance's environment, with cluster (East/West) and region context. |
+| GET | `/projects` | Lists all ArgoCD AppProject resources for this instance's environment. Returns project name, description, permitted destinations (clusters and namespaces), and source repos. Used to populate the project scope selector. |
+| GET | `/projects/{project}` | Returns detail for a single AppProject, including resolved destination namespaces across clusters. |
+| GET | `/apps` | Lists all ArgoCD Application resources for this instance's environment, with cluster (East/West) and region context. Supports optional `?project={name}` query parameter to filter by ArgoCD project. |
 | GET | `/apps/{name}` | Returns health, sync status, and image summary for a single application. |
 | GET | `/apps/{name}/images` | Returns parsed container image tags from `status.summary.images`. |
+| GET | `/appsets` | Lists all ArgoCD ApplicationSet resources for this instance's environment. Supports optional `?project={name}` query parameter. Returns ApplicationSet name, generator type, template, and the list of generated Application names. |
+| GET | `/appsets/{name}` | Returns detail for a single ApplicationSet, including its generated Applications with their target environments and regions. |
 | GET | `/health` | Liveness probe; verifies ArgoCD API reachability. |
 
 #### ArgoCD API Usage Notes
@@ -248,9 +266,12 @@ Three instances deployed — one per environment. Each instance is configured at
 - **Authentication**: Long-lived service account token via `ARGOCD_TOKEN`.
 - **Image tag extraction**: Prefer `status.summary.images` (ArgoCD 2.x). Fall back to `spec.source.helm.values` image key parsing only if summary is unavailable.
 - **Cluster routing**: Use `dest.server` field on each Application to determine East US vs West US cluster.
-- **Scope**: ArgoCD App status and image data only. No manifest diffs, no YAML content.
+- **Project scoping**: The `project` query parameter maps to the ArgoCD `spec.project` field on Application and ApplicationSet resources. When provided, the connector filters at the API query level (ArgoCD supports `?project=` natively), avoiding client-side filtering of large result sets.
+- **Project → Namespace resolution**: The `/projects/{project}` endpoint returns the project's `spec.destinations` list, which defines the permitted namespace(s) per cluster. The frontend uses this to resolve a project selection into namespace(s) for Prometheus and Network connector queries.
+- **ApplicationSet → Application relationship**: The `/appsets/{name}` endpoint returns the ApplicationSet's generated Application names. The frontend uses this to render the parent/child hierarchy in the App Status grid.
+- **Scope**: ArgoCD App/AppSet status and image data only. No manifest diffs, no YAML content.
 
-**Scale consideration**: With 850+ applications across 3 environments, the `/apps` endpoint must handle responses with hundreds of application records per environment. Pagination or streaming may be needed depending on ArgoCD API response characteristics.
+**Scale consideration**: With 850+ applications across 3 environments, the `/apps` endpoint must handle responses with hundreds of application records per environment. The `?project=` filter reduces response size significantly for project-scoped views. Pagination or streaming may be needed for the unfiltered "All Projects" view depending on ArgoCD API response characteristics.
 
 ### 4.4 Prometheus Connector
 
@@ -268,14 +289,27 @@ A single instance queries the Azure Monitor Workspace, which receives Prometheus
 
 | Method | Path | Description |
 | ------ | ---- | ----------- |
-| GET | `/metrics/cpu` | CPU usage (pod and namespace) filtered by environment and cluster labels. |
-| GET | `/metrics/memory` | Memory usage (pod and namespace) filtered by environment and cluster labels. |
-| GET | `/metrics/namespace-quota` | Namespace resource quota utilisation. |
+| GET | `/metrics/cpu` | CPU usage filtered by environment and cluster labels. Supports optional `?namespace={ns}` to scope to a specific namespace. When namespace is provided, returns Deployment/StatefulSet/Job-level breakdown instead of namespace aggregates. |
+| GET | `/metrics/memory` | Memory usage filtered by environment and cluster labels. Supports optional `?namespace={ns}` for workload-level breakdown. |
+| GET | `/metrics/namespace-quota` | Namespace resource quota utilisation. Supports optional `?namespace={ns}` to return quota for a single namespace. |
+| GET | `/metrics/request-limit` | Request/limit ratios for CPU and memory. When `?namespace={ns}` is provided, returns per-Deployment/StatefulSet/Job ratios including current value and 7-day max. Without namespace filter, returns namespace-level aggregates. |
+| GET | `/metrics/ooms` | OOM kill events. When `?namespace={ns}` is provided, returns OOM events for that namespace with pod name, container name, memory at kill, limit, and timestamp. Without namespace filter, returns namespace-level OOM counts. |
+| GET | `/metrics/cilium/drops` | Cilium L3/L4 drop counts from Hubble metrics (`hubble_drop_total`). Supports `?namespace={ns}` to filter to drops where namespace is source or destination. Returns ingress drops, egress drops, and TCP resets aggregated by source/dest namespace pair. |
+| GET | `/metrics/cilium/flows` | Cilium denied flow log from Hubble metrics. Supports `?namespace={ns}` to scope. Returns top denied connections grouped by source/dest pair with direction, protocol, port, drop count, reset count, and policy verdict. |
 | GET | `/health` | Liveness probe; verifies Azure Monitor Workspace reachability. |
 
 #### Query Strategy
 
 All PromQL queries MUST include label filters for environment and cluster region to scope results correctly. The connector is the single query point for all six clusters; label-based scoping within PromQL replaces the need for per-cluster connector instances.
+
+When the `namespace` query parameter is provided, the connector shifts query granularity:
+
+| Mode | Granularity | PromQL label strategy |
+| ---- | ----------- | --------------------- |
+| **Platform view** (no namespace) | Namespace-level aggregates | `sum by (namespace)` — groups across all workloads within each namespace |
+| **Project view** (namespace provided) | Workload-level (Deployment, StatefulSet, Job) | `sum by (namespace, workload, workload_type)` — uses `kube_*` metric labels to identify individual workloads |
+
+The Cilium flow endpoints query Hubble Prometheus metrics (`hubble_drop_total`, `hubble_flows_processed_total`) which are pushed to the same Azure Monitor Workspace by the Hubble relay running on each AKS cluster. These metrics include `source_namespace` and `destination_namespace` labels enabling namespace-scoped filtering.
 
 ### 4.5 Network Connector
 
@@ -285,9 +319,11 @@ Six instances deployed — one per AKS cluster. Each uses an in-cluster Kubernet
 
 | Method | Path | Description |
 | ------ | ---- | ----------- |
-| GET | `/network/policies` | Returns all NetworkPolicy objects in scope for this cluster's dashboard namespaces. |
-| GET | `/network/namespaces/{ns}/status` | Network isolation status for a specific namespace; flags open egress. |
+| GET | `/network/policies` | Returns all NetworkPolicy objects in scope for this cluster's dashboard namespaces. Supports optional `?namespace={ns}` to return policies for a single namespace only. |
+| GET | `/network/namespaces/{ns}/status` | Network isolation status for a specific namespace; flags open egress. Returns policy names, ingress/egress rule summaries, and coverage assessment. |
 | GET | `/health` | Liveness probe. |
+
+> **Note on Cilium flow data**: Cilium L3/L4 drop and flow metrics are sourced from Prometheus via Hubble metrics (not from the Kubernetes API), and are therefore served by the prometheus-connector, not the network-connector. The network-connector is strictly limited to Kubernetes API reads for NetworkPolicy objects. See §4.4 Prometheus Endpoints for Cilium flow endpoints.
 
 ### 4.6 Degraded State Behaviour
 
@@ -325,24 +361,42 @@ Redis is used exclusively as a throwaway in-memory cache. No disk persistence is
 | **Charts** | Recharts | CPU, memory time-series sparklines |
 | **Build Tool** | Vite | Fast dev server; Docker image production build |
 
-### 5.2 Environment and Region Navigation
+### 5.2 Global Navigation and Project Scoping
 
-Two global filter controls visible on all modules:
+Three persistent global filter controls are visible on all modules:
 
+- **Project scope selector**: Dropdown listing all ArgoCD AppProjects. Default: "All Projects" (platform-wide view). Selecting a project scopes all downstream modules to that project's ApplicationSets, Applications, and resolved namespace(s). Selection persists in `localStorage` across sessions.
 - **Environment selector**: DEV / STAGE / PROD (default: all three shown simultaneously for promotion comparison).
 - **Region selector**: East US / West US / Both (default: Both).
 
-Filters are applied client-side against data already returned by connectors. Connector API responses always include environment and region labels so the frontend can filter without additional round trips.
+The dashboard operates in two view modes determined by the project scope selector:
+
+| Mode | Trigger | Behaviour |
+| ---- | ------- | --------- |
+| **Platform View** | "All Projects" selected (default) | All modules show aggregated, namespace-level data across the entire platform. App Status shows a flat Application list. Metrics show namespace-level bars. Network shows all namespaces. Intended for Engineering Leadership and platform-wide health checks. |
+| **Project View** | A specific project selected | All modules scope to the selected project's Applications, ApplicationSets, and resolved namespace(s). App Status shows ApplicationSet → Application hierarchy. Metrics shift to Deployment/Job-level granularity. Network shows only policies and Cilium flows involving the project's namespace(s). Intended for Tenant Developers, Tech Leads, and SREs working on specific services. |
+
+**Project → Namespace resolution**: When a project is selected, the frontend calls `/projects/{project}` on each argocd-connector instance to retrieve the project's `spec.destinations` list. The resolved namespace(s) are then passed as query parameters to the prometheus-connector and network-connector APIs. This resolution happens once on project selection and is cached client-side until the project selection changes.
+
+Environment and region filters are applied client-side against data already returned by connectors. Connector API responses always include environment and region labels so the frontend can filter without additional round trips.
 
 ### 5.3 Dashboard Modules
 
 #### Module 1 — ArgoCD Application Status
 
+**Platform View (All Projects):**
 - Displays health and sync state for all ArgoCD Applications across all three environments and both regions.
 - Grouped view: rows are applications, columns are environments (DEV / STAGE / PROD), with East/West sub-columns. Each cell shows the health/sync badge.
 - Visual indicators: green (Healthy/Synced), amber (Degraded/OutOfSync), red (Unknown/Error).
 - Supports text search to filter applications by name.
 - No manifest diffs, no YAML display. Health and sync status summaries only.
+
+**Project View (specific project selected):**
+- Scoped to Applications and ApplicationSets belonging to the selected ArgoCD project.
+- ApplicationSets are displayed as collapsible parent rows. Each parent row shows the ApplicationSet name, generator type, and aggregate health (e.g., "5/6 Healthy").
+- Child Applications are nested under their parent ApplicationSet, each showing per-environment, per-region health/sync status in the same grid layout.
+- Applications not generated by an ApplicationSet are shown as standalone rows below the ApplicationSet groups.
+- Text search operates within the project scope.
 
 #### Module 2 — Image Promotion View
 
@@ -351,19 +405,41 @@ Filters are applied client-side against data already returned by connectors. Con
 - Highlights tag mismatches across adjacent steps (e.g., DEV-East on v1.3.1 but DEV-West still on v1.3.0).
 - Highlights non-semver tags as a warning indicator.
 - No direct registry queries performed.
+- In **Project View**, only Applications belonging to the selected project are shown. ApplicationSets are shown as group headers with their child Application tags underneath.
 
 #### Module 3 — CPU & Memory Metrics
 
-- Pod-level and namespace-level CPU/memory sourced from prometheus-connector (Azure Monitor Workspace).
+**Platform View (All Projects):**
+- Namespace-level CPU/memory sourced from prometheus-connector (Azure Monitor Workspace).
+- Namespace-level request/limit ratios (current and 7-day max).
+- Namespace-level quota utilisation bars (current and 7-day max).
+- Namespace-level OOM counts (7-day).
 - Filterable by environment and region using global selectors.
-- Trend sparklines for the last 10 polling intervals.
-- Namespace quota utilisation bar displayed alongside raw usage.
+- Trend sparklines for the last 10 polling intervals at namespace granularity.
+
+**Project View (specific project selected):**
+- Shifts to **workload-level granularity**: rows are Deployments, StatefulSets, and Jobs within the project's namespace(s).
+- Each workload row shows: current CPU/memory usage, request/limit ratio (current and 7-day max), and OOM count (7-day).
+- Container-level drill-down available per workload — shows per-container request/limit ratios for workloads with multiple containers (e.g., main process + sidecar).
+- Namespace quota section shows quota for the project's resolved namespace(s) only, with current and 7-day max utilisation.
+- OOM event log scoped to the project's namespace(s), showing pod, container, memory at kill, limit, and timestamp.
+- Trend sparklines shown per workload.
 
 #### Module 4 — Namespace Network Status
 
+**Platform View (All Projects):**
 - Renders active NetworkPolicy objects per namespace, sourced from network-connector (Kubernetes API).
 - Flags namespaces with no egress restriction (open egress warning).
+- Cilium L3/L4 flow drop summary across all namespaces (ingress drops, egress drops, TCP resets).
+- Denied connections table showing top source/dest namespace pairs by drop volume.
 - Filterable by environment and cluster/region.
+
+**Project View (specific project selected):**
+- Scoped to NetworkPolicy objects for the project's resolved namespace(s) only.
+- Full policy detail: each policy shown with its ingress/egress rules, selectors, and ports.
+- Cilium flow data filtered to traffic where the project's namespace is source or destination.
+- Denied connections table scoped to the project's namespace — shows "what connections are my workloads failing on" rather than the full platform firehose.
+- Drop rate sparklines for the project's namespace specifically.
 
 ### 5.4 Data Freshness Indicators
 
@@ -923,6 +999,10 @@ Each phase is gated by approval of its OpenSpec proposals. No code generation or
 | **Network access** | Private internal network only. |
 | **API documentation** | Swagger UI (`/docs`) enabled on all connector instances in all environments. APIs defined and documented through Swagger. |
 | **Project documentation** | README, QUICKSTART, and TROUBLESHOOTING docs required per component. Updated each phase — not deferred to end. No external wikis. |
+| **Project scoping model** | Dashboard uses ArgoCD AppProject as the primary scoping mechanism. Project selector persists in `localStorage`. "All Projects" provides the platform-wide view. Project → namespace resolution uses ArgoCD project `spec.destinations`. |
+| **View mode granularity** | Platform View (All Projects) shows namespace-level aggregates. Project View shows workload-level detail (Deployment, StatefulSet, Job) and ApplicationSet hierarchy. |
+| **Cilium flow data source** | Cilium L3/L4 drop and flow metrics sourced from Prometheus via Hubble metrics (`hubble_drop_total`, `hubble_flows_processed_total`), served by prometheus-connector. Not from the Kubernetes API or network-connector. |
+| **ApplicationSet support** | Dashboard displays ApplicationSets as parent rows with generated Applications nested underneath in Project View. Platform View shows flat Application list only. |
 
 ---
 
@@ -936,6 +1016,10 @@ Each phase is gated by approval of its OpenSpec proposals. No code generation or
 | 4 | Should the East/West region selector persist across browser sessions (localStorage) or be ephemeral? | PROP-02 frontend spec | Open |
 | 5 | What is the expected rotation cadence for ArgoCD service account tokens? Does ESO need a rotation trigger? | Security operations | Open |
 | 6 | What is the ArgoCD API pagination behaviour for environments with hundreds of applications? | PROP-01 performance design | Open |
+| 7 | What is the cardinality of ArgoCD Project → Kubernetes namespace mapping? Is it 1:1 (one project deploys to one namespace), 1:N (one project deploys to multiple namespaces), or N:1 (multiple projects deploy to the same namespace)? This determines whether the project selector can use namespace as a simple join key or needs a many-to-many resolution. | PS-03 project→namespace resolution, PROP-01/03/04 filtering logic | Open |
+| 8 | Are ApplicationSets used consistently across all three environments, or do some environments use standalone Applications without an ApplicationSet parent? | AS-04 ApplicationSet hierarchy rendering | Open |
+| 9 | Is Hubble relay deployed on all 6 AKS clusters and pushing metrics to the Azure Monitor Workspace? Are `hubble_drop_total` and `hubble_flows_processed_total` metrics available with `source_namespace` and `destination_namespace` labels? | NS-03/NS-04 Cilium flow data, PROP-03 prometheus-connector spec | Open |
+| 10 | Should the project scope selector show projects from all three environments (union), or only projects that exist in the currently selected environment filter? | PS-01 project selector UX | Open |
 
 ---
 

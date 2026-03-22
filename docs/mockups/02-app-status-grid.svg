@@ -3,19 +3,9 @@
     <style>
       .bg { fill: #0f172a; }
       .sidebar { fill: #1e293b; }
-      .card { fill: #1e293b; }
-      .card-header { fill: #94a3b8; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-      .title { fill: #f8fafc; font-size: 20px; font-weight: 700; }
-      .subtitle { fill: #94a3b8; font-size: 12px; }
-      .nav-item { fill: #cbd5e1; font-size: 13px; }
-      .nav-active { fill: #38bdf8; font-size: 13px; font-weight: 600; }
       .divider { stroke: #334155; stroke-width: 1; }
-      .filter-bg { fill: #334155; }
-      .filter-active { fill: #1d4ed8; }
-      .filter-text { fill: #e2e8f0; font-size: 11px; font-weight: 500; }
       .col-header { fill: #94a3b8; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
       .app-name { fill: #e2e8f0; font-size: 12px; font-weight: 500; }
-      .timestamp { fill: #64748b; font-size: 10px; }
       .row-bg-even { fill: #1e293b; }
       .row-bg-odd { fill: #172032; }
     </style>
@@ -23,204 +13,272 @@
 
   <rect width="1200" height="800" class="bg"/>
 
-  <!-- Sidebar (condensed) -->
+  <!-- Sidebar -->
   <rect x="0" y="0" width="200" height="800" class="sidebar"/>
   <text x="24" y="36" fill="#f8fafc" font-size="16" font-weight="700">GitOps Dashboard</text>
-  <text x="24" y="52" class="subtitle">Platform Observability</text>
+  <text x="24" y="52" fill="#94a3b8" font-size="12">Platform Observability</text>
   <line x1="16" y1="68" x2="184" y2="68" class="divider"/>
 
-  <text x="40" y="93" class="nav-item">Overview</text>
-  <rect x="8" y="104" width="184" height="32" fill="#1d4ed8" rx="6" opacity="0.3"/>
-  <text x="40" y="125" class="nav-active">App Status</text>
-  <text x="40" y="157" class="nav-item">Image Promotion</text>
-  <text x="40" y="189" class="nav-item">Metrics</text>
-  <text x="40" y="221" class="nav-item">Network Status</text>
+  <!-- Project Scope Selector — payments selected -->
+  <text x="24" y="88" fill="#94a3b8" font-size="9" font-weight="600" letter-spacing="0.05em">PROJECT SCOPE</text>
+  <rect x="12" y="94" width="176" height="32" fill="#0f172a" rx="6" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="24" y="114" fill="#22c55e" font-size="12" font-weight="600">payments</text>
+  <text x="170" y="114" fill="#475569" font-size="12">&#x25BE;</text>
+  <text x="24" y="134" fill="#64748b" font-size="9">3 AppSets, 18 Apps, ns: payments</text>
+
+  <line x1="16" y1="148" x2="184" y2="148" class="divider"/>
+
+  <text x="40" y="170" fill="#cbd5e1" font-size="13">Overview</text>
+  <rect x="8" y="178" width="184" height="30" fill="#1d4ed8" rx="6" opacity="0.3"/>
+  <text x="40" y="197" fill="#38bdf8" font-size="13" font-weight="600">App Status</text>
+  <text x="40" y="225" fill="#cbd5e1" font-size="13">Image Promotion</text>
+  <text x="40" y="253" fill="#cbd5e1" font-size="13">Metrics</text>
+  <text x="40" y="281" fill="#cbd5e1" font-size="13">Network Status</text>
 
   <!-- Main Content -->
   <!-- Top Bar -->
   <rect x="216" y="12" width="968" height="44" fill="#1e293b" rx="8"/>
-  <text x="232" y="28" class="card-header">Environment</text>
-  <rect x="232" y="34" width="36" height="18" rx="6" class="filter-active"/><text x="237" y="47" class="filter-text">ALL</text>
-  <rect x="274" y="34" width="36" height="18" rx="6" class="filter-bg"/><text x="279" y="47" class="filter-text">DEV</text>
-  <rect x="316" y="34" width="50" height="18" rx="6" class="filter-bg"/><text x="321" y="47" class="filter-text">STAGE</text>
-  <rect x="372" y="34" width="44" height="18" rx="6" class="filter-bg"/><text x="377" y="47" class="filter-text">PROD</text>
 
-  <line x1="432" y1="18" x2="432" y2="50" class="divider"/>
-  <text x="448" y="28" class="card-header">Region</text>
-  <rect x="448" y="34" width="42" height="18" rx="6" class="filter-active"/><text x="453" y="47" class="filter-text">BOTH</text>
-  <rect x="496" y="34" width="42" height="18" rx="6" class="filter-bg"/><text x="501" y="47" class="filter-text">EAST</text>
-  <rect x="544" y="34" width="46" height="18" rx="6" class="filter-bg"/><text x="549" y="47" class="filter-text">WEST</text>
+  <!-- Active scope badge -->
+  <rect x="228" y="22" width="80" height="24" fill="#052e16" rx="4" stroke="#22c55e" stroke-width="1"/>
+  <text x="240" y="38" fill="#22c55e" font-size="10" font-weight="600">payments</text>
+  <text x="318" y="38" fill="#475569" font-size="10">|</text>
 
-  <!-- Search (active with text) -->
-  <rect x="622" y="30" width="200" height="24" fill="#0f172a" rx="4" stroke="#3b82f6" stroke-width="1"/>
-  <text x="634" y="46" fill="#e2e8f0" font-size="12">payment</text>
-  <rect x="800" y="32" width="18" height="18" fill="#334155" rx="3"/>
-  <text x="805" y="45" fill="#94a3b8" font-size="10">x</text>
+  <text x="334" y="28" fill="#94a3b8" font-size="11" font-weight="600">Environment</text>
+  <rect x="334" y="34" width="36" height="18" rx="6" fill="#1d4ed8"/><text x="339" y="47" fill="#e2e8f0" font-size="11" font-weight="500">ALL</text>
+  <rect x="376" y="34" width="36" height="18" rx="6" fill="#334155"/><text x="381" y="47" fill="#e2e8f0" font-size="11" font-weight="500">DEV</text>
+  <rect x="418" y="34" width="50" height="18" rx="6" fill="#334155"/><text x="423" y="47" fill="#e2e8f0" font-size="11" font-weight="500">STAGE</text>
+  <rect x="474" y="34" width="44" height="18" rx="6" fill="#334155"/><text x="479" y="47" fill="#e2e8f0" font-size="11" font-weight="500">PROD</text>
 
-  <text x="860" y="46" fill="#94a3b8" font-size="11">Showing 12 of 847 apps</text>
-  <text x="1100" y="40" class="timestamp">Last refreshed: 8s ago</text>
+  <line x1="534" y1="18" x2="534" y2="50" class="divider"/>
+  <text x="550" y="28" fill="#94a3b8" font-size="11" font-weight="600">Region</text>
+  <rect x="550" y="34" width="42" height="18" rx="6" fill="#1d4ed8"/><text x="555" y="47" fill="#e2e8f0" font-size="11" font-weight="500">BOTH</text>
+
+  <!-- Search -->
+  <rect x="622" y="30" width="180" height="24" fill="#0f172a" rx="4" stroke="#475569" stroke-width="1"/>
+  <text x="634" y="46" fill="#64748b" font-size="12">Search in payments...</text>
+
+  <text x="830" y="46" fill="#94a3b8" font-size="11">3 ApplicationSets, 18 Apps</text>
+  <text x="1100" y="40" fill="#64748b" font-size="10">Last refreshed: 8s ago</text>
 
   <!-- Page Title -->
-  <text x="232" y="86" fill="#f8fafc" font-size="18" font-weight="700">Application Status</text>
-  <text x="232" y="102" fill="#94a3b8" font-size="12">Health and sync state across all environments — User Story AS-01</text>
+  <text x="232" y="82" fill="#f8fafc" font-size="16" font-weight="700">Application Status</text>
+  <text x="420" y="82" fill="#94a3b8" font-size="12">Project: payments — ApplicationSets and Applications (AS-04)</text>
 
-  <!-- Grid Table -->
-  <rect x="216" y="114" width="968" height="36" fill="#0f172a" rx="0"/>
+  <!-- Grid Table Header -->
+  <rect x="216" y="94" width="968" height="36" fill="#0f172a"/>
 
-  <!-- Column Headers -->
-  <text x="232" y="137" class="col-header">Application</text>
+  <text x="232" y="117" class="col-header">APPLICATIONSET / APPLICATION</text>
 
-  <!-- DEV header group -->
-  <rect x="410" y="116" width="168" height="14" fill="#1d4ed8" rx="3" opacity="0.3"/>
-  <text x="472" y="127" class="col-header" text-anchor="middle">DEV</text>
-  <text x="450" y="145" class="col-header" text-anchor="middle">East</text>
-  <text x="536" y="145" class="col-header" text-anchor="middle">West</text>
+  <rect x="460" y="96" width="148" height="14" fill="#1d4ed8" rx="3" opacity="0.3"/>
+  <text x="514" y="107" class="col-header" text-anchor="middle">DEV</text>
+  <text x="490" y="125" class="col-header" text-anchor="middle">East</text>
+  <text x="554" y="125" class="col-header" text-anchor="middle">West</text>
 
-  <!-- STAGE header group -->
-  <rect x="590" y="116" width="168" height="14" fill="#7c3aed" rx="3" opacity="0.3"/>
-  <text x="654" y="127" class="col-header" text-anchor="middle">STAGE</text>
-  <text x="632" y="145" class="col-header" text-anchor="middle">East</text>
-  <text x="718" y="145" class="col-header" text-anchor="middle">West</text>
+  <rect x="620" y="96" width="148" height="14" fill="#7c3aed" rx="3" opacity="0.3"/>
+  <text x="674" y="107" class="col-header" text-anchor="middle">STAGE</text>
+  <text x="650" y="125" class="col-header" text-anchor="middle">East</text>
+  <text x="714" y="125" class="col-header" text-anchor="middle">West</text>
 
-  <!-- PROD header group -->
-  <rect x="770" y="116" width="168" height="14" fill="#dc2626" rx="3" opacity="0.3"/>
-  <text x="834" y="127" class="col-header" text-anchor="middle">PROD</text>
-  <text x="812" y="145" class="col-header" text-anchor="middle">East</text>
-  <text x="898" y="145" class="col-header" text-anchor="middle">West</text>
+  <rect x="780" y="96" width="148" height="14" fill="#dc2626" rx="3" opacity="0.3"/>
+  <text x="834" y="107" class="col-header" text-anchor="middle">PROD</text>
+  <text x="810" y="125" class="col-header" text-anchor="middle">East</text>
+  <text x="874" y="125" class="col-header" text-anchor="middle">West</text>
 
-  <text x="1010" y="137" class="col-header">Team</text>
-  <text x="1110" y="137" class="col-header">Last Sync</text>
+  <text x="960" y="117" class="col-header">HEALTH</text>
+  <text x="1080" y="117" class="col-header">SYNC AGE</text>
 
-  <line x1="216" y1="150" x2="1184" y2="150" class="divider"/>
+  <line x1="216" y1="132" x2="1184" y2="132" class="divider"/>
 
-  <!-- Helper: Health badge = green circle + text, Sync = small text underneath -->
-  <!-- Row 1: payment-service — all healthy -->
-  <rect x="216" y="152" width="968" height="44" class="row-bg-even"/>
-  <text x="232" y="174" class="app-name">payment-service</text>
-  <text x="232" y="188" fill="#64748b" font-size="10">apps/payment-service</text>
+  <!-- ============================================================ -->
+  <!-- APPLICATIONSET 1: payment-service (collapsible, expanded)    -->
+  <!-- ============================================================ -->
+  <rect x="216" y="134" width="968" height="32" fill="#1a2744"/>
+  <!-- Expand/collapse indicator -->
+  <text x="232" y="154" fill="#38bdf8" font-size="11">&#x25BC;</text>
+  <rect x="248" y="140" width="18" height="16" fill="#1d4ed8" rx="2" opacity="0.4"/>
+  <text x="253" y="152" fill="#38bdf8" font-size="8" font-weight="700">AS</text>
+  <text x="274" y="154" fill="#38bdf8" font-size="12" font-weight="600">payment-service</text>
+  <text x="420" y="154" fill="#64748b" font-size="10">ApplicationSet — list generator — 6 apps</text>
+  <text x="960" y="154" fill="#22c55e" font-size="11" font-weight="600">6/6 Healthy</text>
+  <text x="1080" y="154" fill="#64748b" font-size="11">2m ago</text>
 
-  <!-- DEV East -->
-  <circle cx="438" cy="170" r="5" fill="#22c55e"/><text x="448" y="174" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <!-- DEV West -->
-  <circle cx="524" cy="170" r="5" fill="#22c55e"/><text x="534" y="174" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <!-- STAGE East -->
-  <circle cx="620" cy="170" r="5" fill="#22c55e"/><text x="630" y="174" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <!-- STAGE West -->
-  <circle cx="706" cy="170" r="5" fill="#22c55e"/><text x="716" y="174" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <!-- PROD East -->
-  <circle cx="800" cy="170" r="5" fill="#22c55e"/><text x="810" y="174" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <!-- PROD West -->
-  <circle cx="886" cy="170" r="5" fill="#22c55e"/><text x="896" y="174" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
+  <!-- Child app row 1: payment-service-dev-east -->
+  <rect x="216" y="166" width="968" height="30" class="row-bg-even"/>
+  <text x="258" y="184" fill="#475569" font-size="10">&#x2514;</text>
+  <text x="274" y="184" fill="#cbd5e1" font-size="11">payment-service-dev-east</text>
+  <circle cx="490" cy="181" r="5" fill="#22c55e"/><text x="500" y="185" fill="#22c55e" font-size="9" font-weight="600">Synced</text>
+  <text x="554" y="185" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="650" y="185" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="714" y="185" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="810" y="185" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="874" y="185" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="960" y="185" fill="#22c55e" font-size="10">Healthy</text>
+  <text x="1080" y="185" fill="#64748b" font-size="10">2m</text>
 
-  <text x="1010" y="177" fill="#94a3b8" font-size="11">payments</text>
-  <text x="1110" y="177" fill="#64748b" font-size="11">2m ago</text>
+  <!-- Child app row 2: payment-service-dev-west -->
+  <rect x="216" y="196" width="968" height="30" class="row-bg-odd"/>
+  <text x="258" y="214" fill="#475569" font-size="10">&#x2514;</text>
+  <text x="274" y="214" fill="#cbd5e1" font-size="11">payment-service-dev-west</text>
+  <text x="490" y="215" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <circle cx="554" cy="211" r="5" fill="#22c55e"/><text x="564" y="215" fill="#22c55e" font-size="9" font-weight="600">Synced</text>
+  <text x="650" y="215" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="714" y="215" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="810" y="215" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="874" y="215" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="960" y="215" fill="#22c55e" font-size="10">Healthy</text>
+  <text x="1080" y="215" fill="#64748b" font-size="10">2m</text>
 
-  <!-- Row 2: payment-gateway — PROD-East degraded -->
-  <rect x="216" y="196" width="968" height="44" class="row-bg-odd"/>
-  <text x="232" y="218" class="app-name">payment-gateway</text>
-  <text x="232" y="232" fill="#64748b" font-size="10">apps/payment-gateway</text>
+  <!-- Child app row 3: payment-service-stage-east -->
+  <rect x="216" y="226" width="968" height="30" class="row-bg-even"/>
+  <text x="258" y="244" fill="#475569" font-size="10">&#x2514;</text>
+  <text x="274" y="244" fill="#cbd5e1" font-size="11">payment-service-stage-east</text>
+  <text x="490" y="245" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="554" y="245" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <circle cx="650" cy="241" r="5" fill="#22c55e"/><text x="660" y="245" fill="#22c55e" font-size="9" font-weight="600">Synced</text>
+  <text x="714" y="245" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="810" y="245" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="874" y="245" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="960" y="245" fill="#22c55e" font-size="10">Healthy</text>
+  <text x="1080" y="245" fill="#64748b" font-size="10">3m</text>
 
-  <circle cx="438" cy="214" r="5" fill="#22c55e"/><text x="448" y="218" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <circle cx="524" cy="214" r="5" fill="#22c55e"/><text x="534" y="218" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <circle cx="620" cy="214" r="5" fill="#22c55e"/><text x="630" y="218" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <circle cx="706" cy="214" r="5" fill="#22c55e"/><text x="716" y="218" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <!-- PROD East - DEGRADED -->
-  <circle cx="800" cy="214" r="5" fill="#f59e0b"/><text x="810" y="218" fill="#f59e0b" font-size="10" font-weight="600">Degraded</text>
-  <circle cx="886" cy="214" r="5" fill="#22c55e"/><text x="896" y="218" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
+  <!-- Child app row 4: stage-west -->
+  <rect x="216" y="256" width="968" height="30" class="row-bg-odd"/>
+  <text x="258" y="274" fill="#475569" font-size="10">&#x2514;</text>
+  <text x="274" y="274" fill="#cbd5e1" font-size="11">payment-service-stage-west</text>
+  <text x="490" y="275" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="554" y="275" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="650" y="275" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <circle cx="714" cy="271" r="5" fill="#22c55e"/><text x="724" y="275" fill="#22c55e" font-size="9" font-weight="600">Synced</text>
+  <text x="810" y="275" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="874" y="275" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="960" y="275" fill="#22c55e" font-size="10">Healthy</text>
+  <text x="1080" y="275" fill="#64748b" font-size="10">3m</text>
 
-  <text x="1010" y="221" fill="#94a3b8" font-size="11">payments</text>
-  <text x="1110" y="221" fill="#f59e0b" font-size="11">18m ago</text>
+  <!-- Child app row 5: prod-east -->
+  <rect x="216" y="286" width="968" height="30" class="row-bg-even"/>
+  <text x="258" y="304" fill="#475569" font-size="10">&#x2514;</text>
+  <text x="274" y="304" fill="#cbd5e1" font-size="11">payment-service-prod-east</text>
+  <text x="490" y="305" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="554" y="305" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="650" y="305" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="714" y="305" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <circle cx="810" cy="301" r="5" fill="#22c55e"/><text x="820" y="305" fill="#22c55e" font-size="9" font-weight="600">Synced</text>
+  <text x="874" y="305" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="960" y="305" fill="#22c55e" font-size="10">Healthy</text>
+  <text x="1080" y="305" fill="#64748b" font-size="10">1m</text>
 
-  <!-- Row 3: payment-processor -->
-  <rect x="216" y="240" width="968" height="44" class="row-bg-even"/>
-  <text x="232" y="262" class="app-name">payment-processor</text>
-  <text x="232" y="276" fill="#64748b" font-size="10">apps/payment-processor</text>
+  <!-- Child app row 6: prod-west -->
+  <rect x="216" y="316" width="968" height="30" class="row-bg-odd"/>
+  <text x="258" y="334" fill="#475569" font-size="10">&#x2514;</text>
+  <text x="274" y="334" fill="#cbd5e1" font-size="11">payment-service-prod-west</text>
+  <text x="490" y="335" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="554" y="335" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="650" y="335" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="714" y="335" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <text x="810" y="335" fill="#334155" font-size="9" text-anchor="middle">—</text>
+  <circle cx="874" cy="331" r="5" fill="#22c55e"/><text x="884" y="335" fill="#22c55e" font-size="9" font-weight="600">Synced</text>
+  <text x="960" y="335" fill="#22c55e" font-size="10">Healthy</text>
+  <text x="1080" y="335" fill="#64748b" font-size="10">1m</text>
 
-  <circle cx="438" cy="258" r="5" fill="#22c55e"/><text x="448" y="262" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <circle cx="524" cy="258" r="5" fill="#22c55e"/><text x="534" y="262" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <circle cx="620" cy="258" r="5" fill="#22c55e"/><text x="630" y="262" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <circle cx="706" cy="258" r="5" fill="#22c55e"/><text x="716" y="262" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <circle cx="800" cy="258" r="5" fill="#22c55e"/><text x="810" y="262" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <circle cx="886" cy="258" r="5" fill="#22c55e"/><text x="896" y="262" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
+  <!-- ============================================================ -->
+  <!-- APPLICATIONSET 2: payment-gateway (collapsed, degraded)     -->
+  <!-- ============================================================ -->
+  <rect x="216" y="348" width="968" height="32" fill="#1a2744"/>
+  <text x="232" y="368" fill="#f59e0b" font-size="11">&#x25B6;</text>
+  <rect x="248" y="354" width="18" height="16" fill="#1d4ed8" rx="2" opacity="0.4"/>
+  <text x="253" y="366" fill="#38bdf8" font-size="8" font-weight="700">AS</text>
+  <text x="274" y="368" fill="#f59e0b" font-size="12" font-weight="600">payment-gateway</text>
+  <text x="420" y="368" fill="#64748b" font-size="10">ApplicationSet — list generator — 6 apps</text>
+  <text x="960" y="368" fill="#f59e0b" font-size="11" font-weight="600">5/6 Healthy</text>
+  <text x="1080" y="368" fill="#f59e0b" font-size="11">18m ago</text>
 
-  <text x="1010" y="265" fill="#94a3b8" font-size="11">payments</text>
-  <text x="1110" y="265" fill="#64748b" font-size="11">2m ago</text>
+  <!-- Inline summary when collapsed: show all 6 status dots -->
+  <circle cx="490" cy="365" r="5" fill="#22c55e"/>
+  <circle cx="554" cy="365" r="5" fill="#22c55e"/>
+  <circle cx="650" cy="365" r="5" fill="#22c55e"/>
+  <circle cx="714" cy="365" r="5" fill="#22c55e"/>
+  <circle cx="810" cy="365" r="5" fill="#f59e0b"/>
+  <circle cx="874" cy="365" r="5" fill="#22c55e"/>
 
-  <!-- Row 4: payment-webhook — OutOfSync in PROD -->
-  <rect x="216" y="284" width="968" height="44" class="row-bg-odd"/>
-  <text x="232" y="306" class="app-name">payment-webhook</text>
-  <text x="232" y="320" fill="#64748b" font-size="10">apps/payment-webhook</text>
+  <!-- ============================================================ -->
+  <!-- APPLICATIONSET 3: payment-processor (collapsed, all healthy) -->
+  <!-- ============================================================ -->
+  <rect x="216" y="382" width="968" height="32" fill="#1a2744"/>
+  <text x="232" y="402" fill="#22c55e" font-size="11">&#x25B6;</text>
+  <rect x="248" y="388" width="18" height="16" fill="#1d4ed8" rx="2" opacity="0.4"/>
+  <text x="253" y="400" fill="#38bdf8" font-size="8" font-weight="700">AS</text>
+  <text x="274" y="402" fill="#22c55e" font-size="12" font-weight="600">payment-processor</text>
+  <text x="430" y="402" fill="#64748b" font-size="10">ApplicationSet — list generator — 6 apps</text>
+  <text x="960" y="402" fill="#22c55e" font-size="11" font-weight="600">6/6 Healthy</text>
+  <text x="1080" y="402" fill="#64748b" font-size="11">2m ago</text>
 
-  <circle cx="438" cy="302" r="5" fill="#22c55e"/><text x="448" y="306" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <circle cx="524" cy="302" r="5" fill="#22c55e"/><text x="534" y="306" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <circle cx="620" cy="302" r="5" fill="#22c55e"/><text x="630" y="306" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <circle cx="706" cy="302" r="5" fill="#22c55e"/><text x="716" y="306" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <!-- PROD East - OutOfSync -->
-  <circle cx="800" cy="302" r="5" fill="#f59e0b"/><text x="810" y="306" fill="#f59e0b" font-size="10" font-weight="600">OutOfSync</text>
-  <!-- PROD West - OutOfSync -->
-  <circle cx="886" cy="302" r="5" fill="#f59e0b"/><text x="896" y="306" fill="#f59e0b" font-size="10" font-weight="600">OutOfSync</text>
+  <circle cx="490" cy="399" r="5" fill="#22c55e"/>
+  <circle cx="554" cy="399" r="5" fill="#22c55e"/>
+  <circle cx="650" cy="399" r="5" fill="#22c55e"/>
+  <circle cx="714" cy="399" r="5" fill="#22c55e"/>
+  <circle cx="810" cy="399" r="5" fill="#22c55e"/>
+  <circle cx="874" cy="399" r="5" fill="#22c55e"/>
 
-  <text x="1010" y="309" fill="#94a3b8" font-size="11">payments</text>
-  <text x="1110" y="309" fill="#f59e0b" font-size="11">22m ago</text>
+  <!-- ============================================================ -->
+  <!-- STANDALONE APPS (not part of an ApplicationSet)              -->
+  <!-- ============================================================ -->
+  <rect x="216" y="418" width="968" height="24" fill="#0f172a"/>
+  <text x="232" y="435" fill="#64748b" font-size="10" font-weight="600">STANDALONE APPLICATIONS (not managed by ApplicationSet)</text>
 
-  <!-- Row 5: payment-notifier -->
-  <rect x="216" y="328" width="968" height="44" class="row-bg-even"/>
-  <text x="232" y="350" class="app-name">payment-notifier</text>
-  <text x="232" y="364" fill="#64748b" font-size="10">apps/payment-notifier</text>
+  <line x1="216" y1="442" x2="1184" y2="442" class="divider"/>
 
-  <circle cx="438" cy="346" r="5" fill="#22c55e"/><text x="448" y="350" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <circle cx="524" cy="346" r="5" fill="#22c55e"/><text x="534" y="350" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <circle cx="620" cy="346" r="5" fill="#22c55e"/><text x="630" y="350" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <circle cx="706" cy="346" r="5" fill="#22c55e"/><text x="716" y="350" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <circle cx="800" cy="346" r="5" fill="#22c55e"/><text x="810" y="350" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
-  <circle cx="886" cy="346" r="5" fill="#22c55e"/><text x="896" y="350" fill="#22c55e" font-size="10" font-weight="600">Synced</text>
+  <!-- payment-webhook (OutOfSync in PROD) -->
+  <rect x="216" y="444" width="968" height="32" class="row-bg-even"/>
+  <text x="248" y="464" fill="#e2e8f0" font-size="12" font-weight="500">payment-webhook</text>
+  <text x="420" y="464" fill="#64748b" font-size="10">Standalone Application</text>
+  <circle cx="490" cy="461" r="5" fill="#22c55e"/>
+  <circle cx="554" cy="461" r="5" fill="#22c55e"/>
+  <circle cx="650" cy="461" r="5" fill="#22c55e"/>
+  <circle cx="714" cy="461" r="5" fill="#22c55e"/>
+  <circle cx="810" cy="461" r="5" fill="#f59e0b"/><text x="820" y="465" fill="#f59e0b" font-size="9" font-weight="600">OoS</text>
+  <circle cx="874" cy="461" r="5" fill="#f59e0b"/><text x="884" y="465" fill="#f59e0b" font-size="9" font-weight="600">OoS</text>
+  <text x="960" y="465" fill="#f59e0b" font-size="10" font-weight="500">Degraded</text>
+  <text x="1080" y="465" fill="#f59e0b" font-size="10">22m</text>
 
-  <text x="1010" y="353" fill="#94a3b8" font-size="11">payments</text>
-  <text x="1110" y="353" fill="#64748b" font-size="11">2m ago</text>
-
-  <!-- Row 6-12 simplified with "..." pattern -->
-  <rect x="216" y="372" width="968" height="44" class="row-bg-odd"/>
-  <text x="232" y="394" class="app-name">payment-reconciler</text>
-  <text x="232" y="408" fill="#64748b" font-size="10">apps/payment-reconciler</text>
-  <circle cx="438" cy="390" r="5" fill="#22c55e"/>
-  <circle cx="524" cy="390" r="5" fill="#22c55e"/>
-  <circle cx="620" cy="390" r="5" fill="#22c55e"/>
-  <circle cx="706" cy="390" r="5" fill="#22c55e"/>
-  <circle cx="800" cy="390" r="5" fill="#22c55e"/>
-  <circle cx="886" cy="390" r="5" fill="#22c55e"/>
-  <text x="1010" y="397" fill="#94a3b8" font-size="11">payments</text>
-  <text x="1110" y="397" fill="#64748b" font-size="11">2m ago</text>
-
-  <rect x="216" y="416" width="968" height="44" class="row-bg-even"/>
-  <text x="232" y="438" class="app-name">payment-scheduler</text>
-  <text x="232" y="452" fill="#64748b" font-size="10">apps/payment-scheduler</text>
-  <circle cx="438" cy="434" r="5" fill="#22c55e"/>
-  <circle cx="524" cy="434" r="5" fill="#22c55e"/>
-  <circle cx="620" cy="434" r="5" fill="#22c55e"/>
-  <circle cx="706" cy="434" r="5" fill="#22c55e"/>
-  <circle cx="800" cy="434" r="5" fill="#22c55e"/>
-  <circle cx="886" cy="434" r="5" fill="#22c55e"/>
-  <text x="1010" y="441" fill="#94a3b8" font-size="11">payments</text>
-  <text x="1110" y="441" fill="#64748b" font-size="11">2m ago</text>
-
-  <!-- More rows indicator -->
-  <rect x="216" y="460" width="968" height="30" fill="#0f172a" rx="0"/>
-  <text x="700" y="480" fill="#64748b" font-size="11" text-anchor="middle">... 5 more matching applications</text>
+  <!-- payment-notifier -->
+  <rect x="216" y="476" width="968" height="32" class="row-bg-odd"/>
+  <text x="248" y="496" fill="#e2e8f0" font-size="12" font-weight="500">payment-notifier</text>
+  <text x="420" y="496" fill="#64748b" font-size="10">Standalone Application</text>
+  <circle cx="490" cy="493" r="5" fill="#22c55e"/>
+  <circle cx="554" cy="493" r="5" fill="#22c55e"/>
+  <circle cx="650" cy="493" r="5" fill="#22c55e"/>
+  <circle cx="714" cy="493" r="5" fill="#22c55e"/>
+  <circle cx="810" cy="493" r="5" fill="#22c55e"/>
+  <circle cx="874" cy="493" r="5" fill="#22c55e"/>
+  <text x="960" y="497" fill="#22c55e" font-size="10">Healthy</text>
+  <text x="1080" y="497" fill="#64748b" font-size="10">2m</text>
 
   <!-- Legend -->
-  <rect x="216" y="500" width="968" height="36" fill="#1e293b" rx="8"/>
-  <text x="232" y="523" fill="#94a3b8" font-size="10" font-weight="600">LEGEND:</text>
-  <circle cx="298" cy="519" r="5" fill="#22c55e"/><text x="308" y="523" fill="#cbd5e1" font-size="10">Healthy / Synced</text>
-  <circle cx="418" cy="519" r="5" fill="#f59e0b"/><text x="428" y="523" fill="#cbd5e1" font-size="10">Degraded / OutOfSync</text>
-  <circle cx="570" cy="519" r="5" fill="#ef4444"/><text x="580" y="523" fill="#cbd5e1" font-size="10">Unknown / Error</text>
-  <circle cx="690" cy="519" r="5" fill="#475569"/><text x="700" y="523" fill="#cbd5e1" font-size="10">Source Unreachable</text>
+  <rect x="216" y="520" width="968" height="50" fill="#1e293b" rx="8"/>
+  <text x="232" y="543" fill="#94a3b8" font-size="10" font-weight="600">LEGEND:</text>
+
+  <rect x="298" y="534" width="18" height="14" fill="#1d4ed8" rx="2" opacity="0.4"/>
+  <text x="303" y="545" fill="#38bdf8" font-size="8" font-weight="700">AS</text>
+  <text x="322" y="545" fill="#cbd5e1" font-size="10">ApplicationSet (collapsible parent)</text>
+
+  <text x="530" y="543" fill="#38bdf8" font-size="11">&#x25BC;</text>
+  <text x="544" y="543" fill="#cbd5e1" font-size="10">Expanded</text>
+  <text x="610" y="543" fill="#22c55e" font-size="11">&#x25B6;</text>
+  <text x="624" y="543" fill="#cbd5e1" font-size="10">Collapsed</text>
+
+  <circle cx="710" cy="540" r="5" fill="#22c55e"/><text x="722" y="543" fill="#cbd5e1" font-size="10">Healthy/Synced</text>
+  <circle cx="830" cy="540" r="5" fill="#f59e0b"/><text x="842" y="543" fill="#cbd5e1" font-size="10">Degraded/OutOfSync</text>
+  <circle cx="970" cy="540" r="5" fill="#ef4444"/><text x="982" y="543" fill="#cbd5e1" font-size="10">Unknown/Error</text>
+
+  <text x="232" y="562" fill="#94a3b8" font-size="9">Each ApplicationSet child targets one environment+region. The grid shows the child's status in its target cell; other cells show "—" (not applicable).</text>
 
   <!-- Data freshness footer -->
-  <rect x="216" y="548" width="968" height="24" fill="#1e293b" rx="6"/>
-  <text x="232" y="564" fill="#64748b" font-size="10">Data from argocd-connector: DEV (8s ago) | STAGE (12s ago) | PROD (6s ago)</text>
+  <rect x="216" y="582" width="968" height="24" fill="#1e293b" rx="6"/>
+  <text x="232" y="598" fill="#64748b" font-size="10">Data from argocd-connector (project=payments): DEV (8s ago) | STAGE (12s ago) | PROD (6s ago)</text>
 
   <!-- Mockup label -->
-  <rect x="216" y="590" width="968" height="70" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="4" rx="8"/>
-  <text x="700" y="618" fill="#475569" font-size="12" text-anchor="middle" font-style="italic">Mockup 2/6 — Application Status Grid (Module 1)</text>
-  <text x="700" y="636" fill="#475569" font-size="11" text-anchor="middle">Persona: Tenant Developer, Tech Lead — AS-01 (health/sync across envs), AS-02 (filter by name), AS-03 (freshness)</text>
+  <rect x="216" y="618" width="968" height="52" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="4" rx="8"/>
+  <text x="700" y="642" fill="#475569" font-size="12" text-anchor="middle" font-style="italic">Mockup 2/6 — Application Status (Project View — payments)</text>
+  <text x="700" y="658" fill="#475569" font-size="11" text-anchor="middle">AS-01 (health/sync), AS-04 (ApplicationSet hierarchy), PS-01 (project scoped), PS-03 (namespace resolved)</text>
 </svg>
