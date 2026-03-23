@@ -1,20 +1,46 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Project: GitOps Platform Dashboard
+  Status: Phase 0 (scaffolding)
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+  Tech stack:
+    Backend: Python 3.14, FastAPI, Pydantic v2, structlog, Redis (30 min TTL), httpx
+    Frontend: React 18, TypeScript (strict), Vite, React Query v5, Tailwind CSS, shadcn/ui, Recharts
+    Infrastructure: AKS, ArgoCD, Azure DevOps Pipelines, Kustomize, External Secrets Operator + Azure Key Vault
+    Metrics: Prometheus via Azure Monitor Workspace
+    Package manager (Python): uv — never pip
+    Package manager (Frontend): pnpm
+
+  Architecture:
+    Three FastAPI connector microservices (argocd, prometheus, network), each independently deployable.
+    React SPA frontend with auto-generated TypeScript API clients from OpenAPI specs.
+    Redis as throwaway cache (no persistence, uniform 30 min TTL across all connectors).
+    Deployed to AKS DEV East US cluster via ArgoCD with rendered manifests pattern.
+
+  Conventions:
+    - OpenSpec API-first: OpenAPI 3.1 specs are source of truth
+    - Conventional Commits: type(scope): description
+    - Ruff for all Python linting/formatting (19 rule sets, config in pyproject.toml)
+    - mypy --strict on all connectors
+    - TDD: tests written before implementation
+    - structlog JSON logging on all connectors
+    - Container hardening: non-root, digest-pinned bases, read-only filesystem
+
+  Reference documents:
+    - docs/PRD-gitops-dashboard.md — Product requirements (v2.1)
+    - docs/TECH-STANDARDS.md — Technical development standards (v1.5)
+    - CLAUDE.md — Project overview for AI agents
+
+rules:
+  proposal:
+    - Reference PRD sections by number (e.g., "PRD §4.3")
+    - Include impact assessment for each changed directory
+  design:
+    - Document alternatives considered for each decision
+    - Reference TECH-STANDARDS.md sections for convention alignment
+  tasks:
+    - Each task should be completable independently
+    - Reference the TECH-STANDARDS section that governs the task
+    - Use uniform 30-minute cache TTL (not per-connector values)
+    - Use uv for all Python package management (never pip)

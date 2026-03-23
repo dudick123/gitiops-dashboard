@@ -1,0 +1,84 @@
+# GitOps Dashboard — CI/CD Pipeline
+# TECH-STANDARDS §14 — Pipeline Architecture
+#
+# This is a placeholder stub establishing the pipeline structure.
+# Full implementation comes with the CI/CD proposal.
+#
+# Pipeline stages (TECH-STANDARDS §14.2):
+#   1. Validate — lint, format check, typecheck
+#   2. Test — pytest (all connectors), vitest (frontend), coverage
+#   3. Security — detect-secrets, dependency audit, Semgrep, eslint-plugin-security
+#   4. Build — docker build for changed connectors + frontend
+#   5. Scan — Trivy image scan, Hadolint, SBOM generation
+#   6. Publish — push images to ACR (merge to main only)
+#   7. Promote — automated PR to deploy repo with new image tags
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - "docs/**"
+      - "*.md"
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: "ubuntu-latest"
+
+stages:
+  - stage: Validate
+    displayName: "Lint & Typecheck"
+    jobs:
+      - job: Python
+        displayName: "Python (Ruff + mypy)"
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: "3.14"
+          - script: |
+              pip install uv
+              make lint typecheck
+            displayName: "Lint and typecheck connectors"
+
+      - job: Frontend
+        displayName: "Frontend (ESLint + tsc)"
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: "22.x"
+          - script: |
+              cd frontend && npm ci && npm run lint && npm run typecheck
+            displayName: "Lint and typecheck frontend"
+
+  - stage: Test
+    displayName: "Test"
+    dependsOn: Validate
+    jobs:
+      - job: PythonTests
+        displayName: "pytest (all connectors)"
+        steps:
+          - script: make test
+            displayName: "Run connector tests"
+
+      - job: FrontendTests
+        displayName: "Vitest (frontend)"
+        steps:
+          - script: cd frontend && npm ci && npm run test
+            displayName: "Run frontend tests"
+
+  - stage: Security
+    displayName: "Security Audit"
+    dependsOn: Validate
+    jobs:
+      - job: SecurityChecks
+        displayName: "Dependency audit + secret scan"
+        steps:
+          - script: make security-audit
+            displayName: "Run security audit"
+
+  # Build, Scan, Publish, Promote stages — implemented with PROP-CI

@@ -205,3 +205,45 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# =============================================================================
+# GitOps Dashboard — Project-specific patterns
+# =============================================================================
+
+# Secrets and credentials (TECH-STANDARDS §12.2)
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+**/secrets/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+.pnpm-debug.log*
+
+# Frontend build output
+frontend/dist/
+frontend/build/
+
+# Vite
+*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Docker
+.docker/
+
+# Temporary files
+tmp/
+*.tmp
+*.bak

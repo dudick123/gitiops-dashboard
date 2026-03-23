@@ -1,0 +1,12 @@
+{
+  "_comment": "Runtime configuration — mounted as ConfigMap in K8s. See TECH-STANDARDS §2.",
+  "argocdConnectorUrls": {
+    "dev": "http://argocd-connector-dev:8080",
+    "stage": "http://argocd-connector-stage:8080",
+    "prod": "http://argocd-connector-prod:8080"
+  },
+  "prometheusConnectorUrl": "http://prometheus-connector:8080",
+  "networkConnectorUrls": {
+    "dev-eastus": "http://network-connector-dev-eastus:8080"
+  }
+}

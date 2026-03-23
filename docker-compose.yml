@@ -1,0 +1,93 @@
+# GitOps Dashboard — Local Development
+# TECH-STANDARDS §7.3 — Simplified topology (1 instance per connector type)
+# Production runs 3 argocd + 1 prometheus + 6 network instances
+
+services:
+  redis:
+    image: redis:7-alpine
+    command: >
+      redis-server
+      --save ""
+      --appendonly no
+      --requirepass ${REDIS_PASSWORD:-local-dev-only}
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep PONG"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  argocd-connector:
+    build: ./connectors/argocd-connector
+    ports:
+      - "8001:8080"
+    environment:
+      - ARGOCD_ENV=DEV
+      - ARGOCD_SERVER_URL=${ARGOCD_SERVER_URL:-https://argocd-dev.platform.internal}
+      - ARGOCD_TOKEN=${ARGOCD_TOKEN:-placeholder}
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-local-dev-only}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_FORMAT=${LOG_FORMAT:-json}
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/healthz')"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  prometheus-connector:
+    build: ./connectors/prometheus-connector
+    ports:
+      - "8002:8080"
+    environment:
+      - PROMETHEUS_ENDPOINT=${PROMETHEUS_ENDPOINT:-https://workspace.prometheus.monitor.azure.com}
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID:-placeholder}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET:-placeholder}
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-local-dev-only}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_FORMAT=${LOG_FORMAT:-json}
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/healthz')"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  network-connector:
+    build: ./connectors/network-connector
+    ports:
+      - "8003:8080"
+    environment:
+      - NETWORK_CLUSTER=${NETWORK_CLUSTER:-aks-dev-eastus}
+      - NETWORK_REGION=${NETWORK_REGION:-eastus}
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-local-dev-only}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_FORMAT=${LOG_FORMAT:-json}
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/healthz')"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:8080"
+    depends_on:
+      - argocd-connector
+      - prometheus-connector
+      - network-connector

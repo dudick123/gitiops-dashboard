@@ -1,0 +1,8 @@
+openapi: "3.1.0"
+info:
+  title: Network Connector API
+  version: "0.1.0"
+  description: >
+    Reads Kubernetes NetworkPolicy objects per cluster.
+    One instance per AKS cluster (6 total).
+paths: {}

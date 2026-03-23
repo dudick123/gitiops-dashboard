@@ -1,0 +1,71 @@
+[project]
+name = "gitops-dashboard"
+version = "0.1.0"
+description = "GitOps Platform Dashboard — workspace root"
+requires-python = ">=3.14"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "pytest-mock>=3.14.0",
+    "respx>=0.22.0",
+    "pre-commit>=4.0.0",
+    "pip-audit>=2.7.0",
+]
+
+[tool.uv.workspace]
+members = [
+    "connectors/argocd-connector",
+    "connectors/prometheus-connector",
+    "connectors/network-connector",
+]
+
+# Ruff configuration — TECH-STANDARDS §1
+# All 19 required rule sets. Config lives here, not in ruff.toml.
+[tool.ruff]
+target-version = "py314"
+line-length = 99
+
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle errors
+    "F",     # Pyflakes
+    "W",     # pycodestyle warnings
+    "I",     # isort (import sorting)
+    "UP",    # pyupgrade
+    "S",     # flake8-bandit (security)
+    "B",     # flake8-bugbear
+    "A",     # flake8-builtins
+    "C4",    # flake8-comprehensions
+    "PT",    # flake8-pytest-style
+    "SIM",   # flake8-simplify
+    "TCH",   # flake8-type-checking
+    "DTZ",   # flake8-datetimez
+    "PIE",   # flake8-pie
+    "RSE",   # flake8-raise
+    "RET",   # flake8-return
+    "FBT",   # flake8-boolean-trap
+    "ASYNC", # flake8-async
+    "RUF",   # Ruff-specific rules
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["argocd_connector", "prometheus_connector", "network_connector"]
+
+# mypy configuration — TECH-STANDARDS §1
+[tool.mypy]
+strict = true
+python_version = "3.14"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_any_generics = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true

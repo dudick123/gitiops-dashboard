@@ -1,0 +1,8 @@
+openapi: "3.1.0"
+info:
+  title: ArgoCD Connector API
+  version: "0.1.0"
+  description: >
+    Queries ArgoCD API for application health, sync status, and image data.
+    One instance per environment (DEV, STAGE, PROD).
+paths: {}
