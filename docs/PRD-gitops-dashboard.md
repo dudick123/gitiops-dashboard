@@ -12,6 +12,7 @@
 | **Review Cycle**      | Sprint-aligned (bi-weekly)                                   |
 | **Related Standards** | OpenSpec — github.com/Fission-AI/OpenSpec                    |
 | **Related PRDs**      | PRD-v2-gitops-pipelines.md (Azure DevOps pipeline templates) |
+| **Related Standards** | docs/TECH-STANDARDS.md (development conventions, tooling, and CI rules) |
 
 ---
 
@@ -492,10 +493,10 @@ Each connector microservice corresponds to a discrete OpenSpec proposal. The lif
 ```
 
 1. **Draft** — Author writes the OpenAPI 3.1 YAML. Paths, schemas, error codes, and `x-cache-ttl` extension fields defined. No code yet.
-2. **Review** — PR opened. OpenSpec AI tooling validates completeness. Human reviewer approves.
+2. **Review** — PR opened. OpenSpec AI tooling validates completeness. **Discipline-specific deep-thinking reviews** are conducted (see §6.5). Human reviewer approves.
 3. **Approved** — Spec merged to main. This is the gate event. Code generation may now begin.
 4. **Generated** — FastAPI Python 3.14 stubs generated. Frontend TS clients regenerated. Generated files committed; must not be hand-edited.
-5. **Implemented** — Team fills business logic into generated stubs. Microservice containerised.
+5. **Implemented** — Team fills business logic into generated stubs. Microservice containerised. **Implementation review** with relevant discipline reviewers before merge (see §6.5).
 6. **Verified** — Generated integration tests pass against the running container. Proposal closed.
 
 Amendments to an approved spec that change response schemas require a new Draft cycle and a major version increment.
@@ -525,6 +526,57 @@ Within each OpenSpec proposal, the development team has two options for the Gene
 - All specs live in the platform monorepo under `/specs/<connector-name>/openapi.yaml`.
 - Breaking changes require a version bump and migration plan.
 - Spec reviews are mandatory before any code generation step proceeds.
+
+### 6.5 Discipline Reviews
+
+Each proposal MUST receive in-depth, deep-thinking reviews from the relevant engineering disciplines at two lifecycle gates: **Review** (before spec approval) and **Implementation Review** (before code merges). These reviews go beyond surface-level checks — reviewers are expected to think critically about edge cases, failure modes, scalability implications, and cross-cutting concerns that the proposal author or AI agent may not have considered.
+
+#### Review Disciplines
+
+| Discipline | Focus Area | When Required |
+| ---------- | ---------- | ------------- |
+| **Senior Python Engineer** | Code patterns, async correctness, Pydantic model design, error handling, performance of upstream API integrations, structlog usage, type safety | All connector proposals |
+| **Senior Front End Developer** | React component architecture, React Query configuration, TypeScript strictness, accessibility (WCAG AA), bundle performance, error boundary design, state management | All frontend module proposals |
+| **Senior Kubernetes & ArgoCD Engineer** | Deployment manifests, probe configuration, resource sizing, RBAC, ArgoCD sync policy, HPA/PDB design, Kustomize structure, sync wave ordering | All proposals that add or modify deployable components |
+| **Senior Security Engineer** | Credential handling, TLS configuration, CORS/CSP, input validation, container hardening, NetworkPolicy changes, SAST/DAST coverage, supply chain (SBOM, dependency audit) | All proposals (every change has a security surface) |
+| **Senior DevOps Engineer** | CI/CD pipeline changes, image promotion flow, rendered manifests pipeline, rollback procedures, observability (metrics, alerts, log aggregation), ArgoCD Notifications | All proposals that change build, deploy, or observability |
+| **Senior QA Test Engineer** | Test strategy completeness, coverage targets, TDD adherence, integration test design, mock fidelity (MSW/respx), spec-conformance test coverage, edge case identification | All proposals |
+
+#### How Reviews Work
+
+Reviews are conducted using AI agent personas within Claude Code. Each discipline reviewer is invoked as a deep-thinking review pass against the proposal artifacts (design, spec, tasks) or implementation code. The reviewer:
+
+1. **Reads** the full proposal context (design.md, spec, tasks.md) or the implementation diff.
+2. **Thinks critically** about the change from their discipline's perspective — not just "does this look right?" but "what could go wrong?", "what's missing?", and "what would I do differently?"
+3. **Produces** concrete, actionable suggestions — not vague feedback. Each suggestion identifies the specific artifact, section, or code location, the issue, and the recommended fix.
+4. **Implements** approved suggestions directly into the artifacts or code.
+
+#### Review Gate Matrix
+
+Not every proposal requires every discipline. The matrix below defines the minimum required reviewers per proposal type:
+
+| Proposal Type | Python | Frontend | K8s/ArgoCD | Security | DevOps | QA |
+| ------------- | ------ | -------- | ---------- | -------- | ------ | -- |
+| New connector (argocd/prometheus/network) | Required | — | Required | Required | Required | Required |
+| Frontend module (App Status, Metrics, etc.) | — | Required | — | Required | — | Required |
+| API spec change (OpenAPI YAML) | Required | Required | — | Required | — | Required |
+| Deployment / manifest change | — | — | Required | Required | Required | — |
+| CI/CD pipeline change | — | — | — | Required | Required | Required |
+| Cross-cutting (new dependency, auth change) | Required | Required | Required | Required | Required | Required |
+
+- **"Required"** means the review MUST be completed and suggestions addressed before the gate can pass.
+- **"—"** means the review is optional — invoke it if the proposal touches that discipline's concerns.
+- For cross-cutting changes that affect multiple layers, all six disciplines review.
+
+#### Documenting Reviews
+
+Review findings and resolutions are recorded in the proposal's `design.md` or as PR comments:
+
+- Each discipline review adds a section: `## Review: <Discipline>` with findings, suggestions, and disposition (accepted/deferred/rejected with rationale).
+- Deferred findings are tracked as follow-up tasks in `tasks.md` or as issues.
+- The proposal cannot move from Review → Approved until all required discipline reviews are complete and all critical findings are resolved.
+
+> **Reference**: The technical standards enforced by each discipline are documented in `docs/TECH-STANDARDS.md`. Reviewers validate proposals and implementations against the standards defined there.
 
 ---
 
@@ -589,7 +641,7 @@ The workflow is **not phase-locked** — teams can loop between Explore and Prop
 
 | Risk | Description | Mitigation |
 | ---- | ----------- | ---------- |
-| **Unreviewed code in production** | Agent-generated code that passes tests but contains subtle logic errors, security issues, or incorrect assumptions about upstream APIs. | All agent-generated code goes through human review before merge. Generated integration tests validate spec conformance. Security-sensitive code (credential handling, API auth) is always human-reviewed line by line. |
+| **Unreviewed code in production** | Agent-generated code that passes tests but contains subtle logic errors, security issues, or incorrect assumptions about upstream APIs. | All agent-generated code goes through human review before merge. Generated integration tests validate spec conformance. Security-sensitive code (credential handling, API auth) is always human-reviewed line by line. Discipline-specific deep-thinking reviews (§6.5) provide targeted scrutiny from Python, frontend, K8s, security, DevOps, and QA perspectives at both spec approval and implementation gates. |
 | **Over-reliance on agent for domain understanding** | Agent may generate plausible-looking ArgoCD or Prometheus integration code that misunderstands API behaviour at edge cases (e.g., ArgoCD app-of-apps, multi-source applications). | Team validates agent output against actual ArgoCD/Prometheus API behaviour in DEV. Scaffold-only mode used for integrations where the team wants full control. |
 | **Generated code drift** | If specs are updated but generated code is not regenerated, implementation may diverge from the contract. | Spec-conformance gate in Phase 4. CI step validates generated code matches current spec. Generated files are marked with headers indicating they must not be hand-edited. |
 | **Debugging agent-generated code** | When agent-generated code fails in production, the team may struggle to debug code they didn't write, particularly on the React/TypeScript side. | Structured JSON logging on all connectors. Generated code includes comments explaining non-obvious logic. Team builds familiarity through the review process. |
@@ -948,6 +1000,7 @@ Documentation is not a final-phase activity. Each phase must produce and update 
 | **API documentation** | Swagger UI (`/docs`), ReDoc (`/redoc`), and OpenAPI JSON (`/openapi.json`) on every connector instance |
 | **Documentation** | README, QUICKSTART, and TROUBLESHOOTING maintained per component; updated each phase |
 | **Observability** | Structured JSON logs (`structlog`); Prometheus `/metrics` on each connector |
+| **Development standards** | See `docs/TECH-STANDARDS.md` for enforceable coding conventions, linting rules, testing strategy, and CI gate definitions |
 | **Scalability** | Connectors support HPA; scale-to-zero on idle |
 | **Data residency** | No PII stored; no data written to disk; Redis in-cluster only |
 | **Graceful degradation** | Unreachable sources shown as "Unknown" with last refresh timestamp; remaining data unaffected |
@@ -969,7 +1022,7 @@ Documentation is not a final-phase activity. Each phase must produce and update 
 
 ### Phased Rollout
 
-Each phase is gated by approval of its OpenSpec proposals. No code generation or implementation work may begin for a given proposal until it has been reviewed and merged. The completed scope of all phases constitutes the MVP.
+Each phase is gated by approval of its OpenSpec proposals. No code generation or implementation work may begin for a given proposal until it has been reviewed and merged. All proposals undergo discipline-specific deep-thinking reviews per the review gate matrix in §6.5 — both at spec approval and at implementation merge. The completed scope of all phases constitutes the MVP.
 
 | Phase | Scope | Deliverables | Gate Condition |
 | ----- | ----- | ------------ | -------------- |
