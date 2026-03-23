@@ -30,9 +30,9 @@ Three backend microservices, each wrapping a single data source:
 
 ### Caching Strategy (Redis, no persistence)
 
-- ArgoCD: 30s TTL
-- Prometheus: 60s TTL
-- NetworkPolicy: 120s TTL
+- Uniform 30-minute TTL across all connectors (ArgoCD, Prometheus, NetworkPolicy)
+- Dashboard is a reporting tool — does not require real-time data
+- 30-minute interval avoids overwhelming upstream APIs
 
 ### Environment Promotion Order
 

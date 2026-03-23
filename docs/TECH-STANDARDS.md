@@ -194,8 +194,8 @@ React Query v5 is the sole data-fetching layer. No `useEffect` + `fetch`, no `ax
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 30_000,          // 30s — matches fastest connector TTL
-      gcTime: 5 * 60_000,         // 5 min garbage collection
+      staleTime: 30 * 60_000,      // 30 min — matches uniform connector TTL
+      gcTime: 60 * 60_000,        // 60 min garbage collection
       retry: 2,                   // 2 retries on failure
       retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10_000),
       refetchOnWindowFocus: true, // refresh stale data when user returns to tab
@@ -209,11 +209,12 @@ const queryClient = new QueryClient({
 
 | Connector | `refetchInterval` | `staleTime` | Rationale |
 | --------- | ------------------ | ----------- | --------- |
-| argocd-connector | 30,000 ms | 30,000 ms | Matches 30s Redis TTL |
-| prometheus-connector | 60,000 ms | 60,000 ms | Matches 60s Redis TTL |
-| network-connector | 120,000 ms | 120,000 ms | Matches 120s Redis TTL |
+| argocd-connector | 1,800,000 ms (30 min) | 1,800,000 ms | Matches uniform 30 min Redis TTL |
+| prometheus-connector | 1,800,000 ms (30 min) | 1,800,000 ms | Matches uniform 30 min Redis TTL |
+| network-connector | 1,800,000 ms (30 min) | 1,800,000 ms | Matches uniform 30 min Redis TTL |
 
-- **Pause polling on hidden tabs**: Set `refetchIntervalInBackground: false` on all polling queries. A background tab polling 3 connectors every 30s is wasted load.
+- **Pause polling on hidden tabs**: Set `refetchIntervalInBackground: false` on all polling queries. Even at 30-minute intervals, a forgotten background tab is wasted load.
+- **Manual refresh**: The dashboard MUST provide a "Refresh now" button per module that calls `queryClient.invalidateQueries()` for the relevant query keys, triggering an immediate upstream fetch regardless of TTL. This gives users control when they need fresher data without reducing the default polling interval.
 
 #### Query Key Convention
 
@@ -570,7 +571,7 @@ Azure-specific credentials use the `AZURE_` prefix as required by Azure SDK conv
 ### Frontend (React / TypeScript)
 
 - **React Query v5** manages all server state. See §2 for full React Query configuration, polling intervals, and query key conventions.
-- Polling intervals aligned to connector Redis TTLs (argocd: 30s, prometheus: 60s, network: 120s).
+- Polling intervals aligned to uniform 30-minute connector Redis TTL.
 - **Tailwind CSS + shadcn/ui** for styling. No custom CSS unless shadcn/ui does not provide a suitable component.
 - **Recharts** for sparkline and time-series visualisations.
 - **Error boundaries** per dashboard module — see §2 React Component Patterns.
@@ -1925,11 +1926,11 @@ spec:
       app.kubernetes.io/name: argocd-connector
   endpoints:
     - port: metrics
-      interval: 15s
+      interval: 60s
       path: /metrics
 ```
 
-- **Scrape interval**: 15s for connectors (aligned with the finest-grain TTL of 30s for ArgoCD cache).
+- **Scrape interval**: 60s for connectors. With a 30-minute cache TTL, 15s scraping generates excessive cardinality for no benefit. 60s captures request patterns and error rates without waste.
 - **Port naming**: The metrics port in the Service MUST be named `metrics` to match the ServiceMonitor `port` field.
 
 ### 15.2 ArgoCD Notifications

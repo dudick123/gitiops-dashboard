@@ -33,8 +33,8 @@ The dashboard is built as a set of independent FastAPI microservice connectors (
 | Metric | Target | Measurement |
 | ------ | ------ | ----------- |
 | **Dashboard load time (P95)** | < 3 s | Synthetic monitoring |
-| **ArgoCD data freshness** | ≤ 30 s stale | Redis TTL audit |
-| **Prometheus metrics freshness** | ≤ 60 s stale | Redis TTL audit |
+| **ArgoCD data freshness** | ≤ 30 min stale | Redis TTL audit |
+| **Prometheus metrics freshness** | ≤ 30 min stale | Redis TTL audit |
 | **Connector availability** | Best-effort; not Tier I | AKS liveness probes |
 | **Tenant self-service adoption** | Measurable reduction in "status check" requests to platform team | Qualitative team survey post-pilot |
 | **Onboarding friction** | New tenants can use the dashboard without training | Observation during pilot |
@@ -88,7 +88,7 @@ The dashboard is built as a set of independent FastAPI microservice connectors (
 | ID | Story | Acceptance Criteria |
 | -- | ----- | ------------------- |
 | MT-01 | As an **SRE**, I want to see CPU and memory usage by namespace and pod, filterable by environment and region, so that I can spot resource pressure without opening the Azure portal. | In "All Projects" mode, metrics module displays CPU/memory at namespace level, filterable by environment (DEV/STAGE/PROD) and region (East/West). When a project is selected, metrics display at Deployment, StatefulSet, and Job level within the project's namespace(s). |
-| MT-02 | As an **SRE**, I want trend sparklines so that I can see directional changes at a glance. | Sparkline charts show the last 10 polling intervals of data. In project-scoped mode, sparklines are shown per workload (Deployment/Job). |
+| MT-02 | As an **SRE**, I want trend sparklines so that I can see directional changes at a glance. | Sparkline charts show the last 10 polling intervals of data (~5 hours at 30-minute refresh). In project-scoped mode, sparklines are shown per workload (Deployment/Job). |
 | MT-03 | As a **tenant developer**, I want to see namespace resource quota utilisation so that I know how close my namespace is to its limits. | Namespace quota utilisation bar displayed alongside raw usage values. In project-scoped mode, the quota section shows quota for the project's resolved namespace(s) only. |
 | MT-04 | As a **tenant developer**, I want to see request/limit ratios and OOM events for my specific Deployments so that I can right-size my workloads. | In project-scoped mode, each Deployment/StatefulSet/Job row shows: current request/limit ratio, 7-day max request/limit ratio, current quota usage, 7-day max quota, and OOM kill count (7-day). Container-level breakdown is available as a drill-down. |
 | MT-05 | As an **SRE**, I want OOM events attributed to specific containers so that I can identify which sidecar or main process is causing memory pressure. | OOM event log shows pod name, container name, memory at kill vs limit, and timestamp. In project-scoped mode, only OOM events for the selected project's namespace(s) are shown. |
@@ -233,9 +233,9 @@ All connector credentials — ArgoCD service account tokens, Azure Monitor Works
 
 | Connector | Upstream Source | Instances | Data Served | TTL |
 | --------- | -------------- | --------- | ----------- | --- |
-| **argocd-connector** | ArgoCD REST API | 1 per env (×3) | App health, sync status, image tags per env+cluster | 30 s |
-| **prometheus-connector** | Azure Monitor Workspace (Prometheus API) | 1 (shared) | CPU, memory, pod & namespace metrics for all envs | 60 s |
-| **network-connector** | Kubernetes API (NetworkPolicy only) | 1 per cluster (×6) | Namespace network policy state | 120 s |
+| **argocd-connector** | ArgoCD REST API | 1 per env (×3) | App health, sync status, image tags per env+cluster | 30 min |
+| **prometheus-connector** | Azure Monitor Workspace (Prometheus API) | 1 (shared) | CPU, memory, pod & namespace metrics for all envs | 30 min |
+| **network-connector** | Kubernetes API (NetworkPolicy only) | 1 per cluster (×6) | Namespace network policy state | 30 min |
 
 ### 4.3 ArgoCD Connector
 
@@ -343,9 +343,9 @@ Redis is used exclusively as a throwaway in-memory cache. No disk persistence is
 
 | Connector | Data Type | TTL | Cache Miss Behaviour |
 | --------- | --------- | --- | -------------------- |
-| **argocd-connector** (×3) | App status, sync, images per env+cluster | 30 s | Live ArgoCD API fetch |
-| **prometheus-connector** | CPU / memory / quota metrics | 60 s | Live Azure Monitor Workspace PromQL query |
-| **network-connector** (×6) | NetworkPolicy objects per cluster | 120 s | Live Kubernetes API fetch |
+| **argocd-connector** (×3) | App status, sync, images per env+cluster | 30 min | Live ArgoCD API fetch |
+| **prometheus-connector** | CPU / memory / quota metrics | 30 min | Live Azure Monitor Workspace PromQL query |
+| **network-connector** (×6) | NetworkPolicy objects per cluster | 30 min | Live Kubernetes API fetch |
 
 ---
 
@@ -357,7 +357,7 @@ Redis is used exclusively as a throwaway in-memory cache. No disk persistence is
 | --------- | ------ | ----- |
 | **Framework** | React 18 + TypeScript (strict mode) | Team has no React experience; agent-generated components from OpenAPI specs minimise hand-written TS |
 | **API Clients** | Auto-generated TypeScript (`openapi-typescript-codegen`) | Generated from approved OpenSpec specs; team does not write raw API calls |
-| **State Management** | React Query v5 | Auto-polling aligned to per-connector Redis TTLs |
+| **State Management** | React Query v5 | Auto-polling at 30-minute intervals aligned to uniform Redis TTL |
 | **Styling** | Tailwind CSS + shadcn/ui | Consistent component library; agent scaffolding friendly |
 | **Charts** | Recharts | CPU, memory time-series sparklines |
 | **Build Tool** | Vite | Fast dev server; Docker image production build |
@@ -416,7 +416,7 @@ Environment and region filters are applied client-side against data already retu
 - Namespace-level quota utilisation bars (current and 7-day max).
 - Namespace-level OOM counts (7-day).
 - Filterable by environment and region using global selectors.
-- Trend sparklines for the last 10 polling intervals at namespace granularity.
+- Trend sparklines for the last 10 polling intervals (~5 hours at 30-minute refresh) at namespace granularity.
 
 **Project View (specific project selected):**
 - Shifts to **workload-level granularity**: rows are Deployments, StatefulSets, and Jobs within the project's namespace(s).
@@ -758,7 +758,7 @@ gitops-dashboard/
 │   │   │   ├── routes/                    # Generated route stubs + business logic
 │   │   │   ├── models/                    # Generated Pydantic v2 models
 │   │   │   ├── services/                  # Hand-written business logic
-│   │   │   └── cache.py                   # Redis client (30s TTL)
+│   │   │   └── cache.py                   # Redis client (30 min TTL)
 │   │   └── tests/
 │   │       ├── generated/                 # Auto-generated spec-conformance tests
 │   │       └── integration/               # Hand-written integration tests
@@ -770,7 +770,7 @@ gitops-dashboard/
 │   │   │   ├── routes/
 │   │   │   ├── models/
 │   │   │   ├── services/
-│   │   │   └── cache.py                   # Redis client (60s TTL)
+│   │   │   └── cache.py                   # Redis client (30 min TTL)
 │   │   └── tests/
 │   └── network-connector/
 │       ├── Dockerfile
@@ -780,7 +780,7 @@ gitops-dashboard/
 │       │   ├── routes/
 │       │   ├── models/
 │       │   ├── services/
-│       │   └── cache.py                   # Redis client (120s TTL)
+│       │   └── cache.py                   # Redis client (30 min TTL)
 │       └── tests/
 │
 ├── frontend/                              # React 18 + TypeScript dashboard
@@ -1013,8 +1013,8 @@ Documentation is not a final-phase activity. Each phase must produce and update 
 
 | Risk | Likelihood | Impact | Mitigation |
 | ---- | ---------- | ------ | ---------- |
-| **ArgoCD API rate limiting** under 850+ app queries | Medium | High | Redis caching (30s TTL) reduces query frequency. Implement pagination. Monitor ArgoCD API response times during pilot. |
-| **Azure Monitor Workspace query latency** for 6-cluster fan-out | Medium | Medium | PromQL queries scoped by label (not per-cluster fan-out). Cache results at 60s TTL. Pre-aggregate where possible. |
+| **ArgoCD API rate limiting** under 850+ app queries | Low | High | Redis caching (30 min TTL) significantly reduces query frequency — each connector instance queries upstream at most twice per hour. Implement pagination. Monitor ArgoCD API response times during pilot. |
+| **Azure Monitor Workspace query latency** for 6-cluster fan-out | Low | Medium | PromQL queries scoped by label (not per-cluster fan-out). Cache results at 30 min TTL. Pre-aggregate where possible. |
 | **Team lacks React experience** | High | Medium | Auto-generated TS API clients from OpenAPI specs. Agent-assisted React component scaffolding. shadcn/ui component library reduces custom CSS. |
 | **Network connectivity from DEV cluster** to STAGE/PROD ArgoCD instances | Low | High | Verify network routes during Phase 0. Graceful degradation shows "Unknown" status. |
 | **Stale data displayed without user awareness** | Medium | Medium | Every module displays last-refresh timestamp. "Unknown" state for unreachable sources. |
@@ -1056,6 +1056,7 @@ Each phase is gated by approval of its OpenSpec proposals. No code generation or
 | **View mode granularity** | Platform View (All Projects) shows namespace-level aggregates. Project View shows workload-level detail (Deployment, StatefulSet, Job) and ApplicationSet hierarchy. |
 | **Cilium flow data source** | Cilium L3/L4 drop and flow metrics sourced from Prometheus via Hubble metrics (`hubble_drop_total`, `hubble_flows_processed_total`), served by prometheus-connector. Not from the Kubernetes API or network-connector. |
 | **ApplicationSet support** | Dashboard displays ApplicationSets as parent rows with generated Applications nested underneath in Project View. Platform View shows flat Application list only. |
+| **Cache refresh interval** | Uniform 30-minute TTL across all connectors. The dashboard is a reporting tool — it does not require real-time or near-real-time data. The 30-minute interval avoids overwhelming upstream APIs (ArgoCD, Azure Monitor Workspace, Kubernetes API) while keeping data fresh enough for status reporting, promotion tracking, and network policy auditing. Users see a "Last updated" timestamp on every module. A manual refresh button allows on-demand cache bypass when needed. |
 
 ---
 
