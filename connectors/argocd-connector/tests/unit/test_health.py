@@ -1,6 +1,11 @@
 """Smoke tests for health endpoints."""
 
-from httpx import AsyncClient
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from httpx import AsyncClient
 
 
 async def test_liveness_returns_ok(client: AsyncClient) -> None:

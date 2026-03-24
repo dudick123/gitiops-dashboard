@@ -3,13 +3,18 @@
 TECH-STANDARDS §8 — AsyncClient with ASGITransport for testing FastAPI routes.
 """
 
+from __future__ import annotations
+
 import sys
-from collections.abc import AsyncIterator
 from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock
 
 import pytest
 from httpx import ASGITransport, AsyncClient
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
 
 # Ensure src/ is importable regardless of working directory
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -21,7 +26,11 @@ from src.main import app
 async def client() -> AsyncIterator[AsyncClient]:
     """Async test client for FastAPI routes."""
     transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=transport,
+        base_url="http://localhost",
+        headers={"Host": "localhost"},
+    ) as ac:
         yield ac
 
 

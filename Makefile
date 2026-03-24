@@ -87,6 +87,10 @@ security-audit:
 # --- Build ---
 
 build:
+	@echo "Syncing uv.lock to connector directories..."
+	@for dir in $(CONNECTORS); do \
+		cp uv.lock $$dir/uv.lock; \
+	done
 	@for dir in $(CONNECTORS); do \
 		name=$$(basename $$dir); \
 		echo "Building $$name (sha-$(GIT_SHA))..."; \
@@ -121,6 +125,10 @@ lighthouse:
 # --- Docker Compose ---
 
 docker-up:
+	@echo "Syncing uv.lock to connector directories..."
+	@for dir in $(CONNECTORS); do \
+		cp uv.lock $$dir/uv.lock; \
+	done
 	docker compose up --build -d
 
 docker-down:

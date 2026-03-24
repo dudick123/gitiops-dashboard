@@ -13,7 +13,7 @@ services:
     ports:
       - "6379:6379"
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep PONG"]
+      test: ["CMD", "redis-cli", "-a", "local-dev-only", "ping"]
       interval: 10s
       timeout: 3s
       retries: 3

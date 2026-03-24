@@ -6,13 +6,22 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { App } from "./App";
 import { queryClient } from "./lib/query-client";
 
-const rootElement = document.getElementById("root");
-if (!rootElement) throw new Error("Root element not found");
+async function enableMocking(): Promise<void> {
+  if (import.meta.env.DEV) {
+    const { worker } = await import("./mocks/browser");
+    await worker.start({ onUnhandledRequest: "bypass" });
+  }
+}
 
-createRoot(rootElement).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
-  </StrictMode>,
-);
+enableMocking().then(() => {
+  const rootElement = document.getElementById("root");
+  if (!rootElement) throw new Error("Root element not found");
+
+  createRoot(rootElement).render(
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    </StrictMode>,
+  );
+});

@@ -1,52 +1,45 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with code in this repository.
 
-## Project Overview
+## Quick Start
 
-GitOps Dashboard — an enterprise platform for monitoring and managing ArgoCD deployments, Prometheus metrics, and Kubernetes NetworkPolicies across 6 AKS clusters (3 environments × 2 regions: East US, West US).
+**Read `docs/PROJECT-GUIDE.md` first.** It contains the consolidated project context, architecture, technical rules, and workflow — everything you need to start contributing.
 
-**Status**: Early-stage (PRD/architecture phase). No source code committed yet. PRDs in `docs/` define the full technical specification.
+## Project
 
-## Planned Tech Stack
+GitOps Dashboard — read-only reporting dashboard for ArgoCD, Prometheus, and Kubernetes NetworkPolicy across 6 AKS clusters (3 environments × 2 regions).
 
-- **Backend**: Python 3.14, FastAPI, Pydantic v2, structlog, Redis caching
-- **Frontend**: React 18, TypeScript (strict), Vite, React Query v5, Tailwind CSS, shadcn/ui, Recharts
-- **Infrastructure**: AKS, ArgoCD, Azure DevOps Pipelines, Kustomize, External Secrets Operator + Azure Key Vault
-- **Metrics**: Prometheus via Azure Monitor Workspace
+**Status**: Methodology POC in progress. Repo scaffold complete. Mock UI proposed.
 
-## Architecture
+## Current Phase
 
-### OpenSpec-First Development
+**Methodology POC** — Build argocd-connector `/healthz` + `/apps` end-to-end to validate the OpenSpec lifecycle before committing to the full build. See `openspec/changes/methodology-poc/`.
 
-OpenAPI 3.1 specs are the source of truth. Backend code and frontend TypeScript clients are generated from specs. All services must be validated against their specs.
+## Critical Rules
 
-### Microservice Connectors (FastAPI)
+- **Python package manager**: `uv` — never `pip`
+- **Cache TTL**: 30 minutes uniform across all connectors
+- **Quality gate**: `make check-all` must pass (lint + typecheck + test)
+- **Agent autonomy**: Implement full proposals autonomously. Human reviews at the end.
+- **Reviews**: Use `/review` (smart router) — auto-selects 1-2 expert reviewers. Not 6.
 
-Three backend microservices, each wrapping a single data source:
-1. **argocd-connector** — ArgoCD API (3 instances: DEV/STAGE/PROD)
-2. **prometheus-connector** — Azure Monitor Workspace (1 shared instance)
-3. **network-connector** — Kubernetes NetworkPolicy queries (1 per cluster, 6 total)
+## Key Documents
 
-### Caching Strategy (Redis, no persistence)
+| Document | Purpose |
+|---|---|
+| `docs/PROJECT-GUIDE.md` | **Primary context** — architecture, rules, workflow |
+| `docs/PRD-gitops-dashboard.md` | Full product requirements (reference for deep dives) |
+| `docs/TECH-STANDARDS.md` | Full technical standards (reference for specific rule lookups) |
+| `docs/CLAUDE-FEEDBACK.md` | Project assessment, pros/cons, MVP likelihood |
+| `docs/CLAUDE-ACCELERATION-RECOMMENDATIONS.md` | Process improvement recommendations |
+| `openspec/changes/` | Active proposals |
+| `openspec/changes/archive/` | Completed proposals |
 
-- Uniform 30-minute TTL across all connectors (ArgoCD, Prometheus, NetworkPolicy)
-- Dashboard is a reporting tool — does not require real-time data
-- 30-minute interval avoids overwhelming upstream APIs
+## OpenSpec Workflow
 
-### Environment Promotion Order
+```
+propose → implement (standards-aware) → review (1-2 experts) → archive
+```
 
-DEV-East → DEV-West → STAGE-East → STAGE-West → PROD-East → PROD-West
-
-## Key Design Decisions
-
-- **No direct Kubernetes API queries** except for NetworkPolicy — all other data comes from ArgoCD or Prometheus
-- **Auto-generated TypeScript clients** from OpenAPI specs (team is Python-heavy, minimal React experience)
-- **Kustomize** for all manifest rendering (no Helm)
-- **Per-connector microservices** for independent scaling and versioning
-- **Structured JSON logging** via structlog on all connectors
-
-## Reference Documents
-
-- `docs/PRD-gitops-dahsboard.md` — Main platform PRD (v1.3): topology, data sources, connector specs, frontend modules, phased delivery
-- `docs/PRD-v2-gitops-pipelines.md` — Azure DevOps pipeline templates PRD (v2.0): container builds, manifest rendering, security scanning
+Skills: `/openspec-propose`, `/openspec-apply-change`, `/review`, `/openspec-archive-change`

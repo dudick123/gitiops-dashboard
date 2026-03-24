@@ -1,9 +1,11 @@
 """ArgoCD Connector — GitOps Dashboard."""
 
-from collections.abc import AsyncIterator
+from __future__ import annotations
+
+import os
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,12 +13,13 @@ from pydantic import BaseModel
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from src.logging_config import configure_logging
+from src.routes.apps import router as apps_router
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
 
 # Configure structured logging at import time
 configure_logging(connector="argocd-connector")
-
-# TECH-STANDARDS §12.1 — CORS origin from env var
-import os
 
 CORS_ALLOWED_ORIGIN: str = os.environ.get(
     "CORS_ALLOWED_ORIGIN", "http://localhost:3000"
@@ -37,13 +40,41 @@ class HealthResponse(BaseModel):
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Manage startup/shutdown lifecycle per TECH-STANDARDS §4."""
-    # TODO: Initialize httpx.AsyncClient with timeouts (§4 HTTP Client)
-    # TODO: Initialize Redis connection pool (§4 Redis Conventions)
+    import httpx
+    import redis.asyncio as aioredis
     import structlog
+
+    from src.cache import RedisCache, redis_settings
+
     log = structlog.get_logger()
     await log.ainfo("argocd-connector starting")
+
+    # Create httpx client with explicit timeouts
+    http_client = httpx.AsyncClient(
+        timeout=httpx.Timeout(connect=5.0, read=30.0, write=10.0, pool=5.0),
+    )
+    app.state.http_client = http_client
+
+    # Create Redis connection
+    redis_url = redis_settings.url
+    redis_password = (
+        redis_settings.password.get_secret_value()
+        if redis_settings.password
+        else None
+    )
+    redis_client = aioredis.from_url(
+        redis_url,
+        password=redis_password,
+        decode_responses=False,
+    )
+    app.state.cache = RedisCache(redis_client)
+
     yield
-    await log.ainfo("argocd-connector shutting down")
+
+    # Shutdown
+    await http_client.aclose()
+    await redis_client.aclose()
+    await log.ainfo("argocd-connector shut down")
 
 
 app = FastAPI(
@@ -68,6 +99,8 @@ app.add_middleware(
     TrustedHostMiddleware,
     allowed_hosts=os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(","),
 )
+
+app.include_router(apps_router)
 
 
 @app.get("/healthz", response_model=HealthResponse)

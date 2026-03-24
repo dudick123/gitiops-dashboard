@@ -14,9 +14,12 @@ RUN npm run build
 # --- Final stage ---
 FROM nginx:alpine
 
-# Create non-root user
+# Create non-root user and fix all writable directories nginx needs
 RUN addgroup -g 1000 frontend && \
-    adduser -u 1000 -G frontend -s /bin/sh -D frontend
+    adduser -u 1000 -G frontend -s /bin/sh -D frontend && \
+    mkdir -p /var/cache/nginx /var/run /var/log/nginx && \
+    chown -R frontend:frontend /var/cache/nginx /var/run /var/log/nginx /run && \
+    touch /run/nginx.pid && chown frontend:frontend /run/nginx.pid
 
 # Copy built assets
 COPY --from=builder /app/dist /usr/share/nginx/html
